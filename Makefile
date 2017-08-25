@@ -7,7 +7,7 @@ OBJS = src/netif/dev_setup.o	\
        src/tun_dev.o
 
 tcp-ip: $(OBJS)
-	$(CC) -o tcp-ip $(OBJS)
+	$(CC) -o tcpip $(OBJS)
 	
 $(OBJS):%.o:%.c
 	$(CC) -c $(CFLAGS) $< -o $@
@@ -16,4 +16,4 @@ $(OBJS):%.o:%.c
 
 clean:
 	find . -name *.o | xargs rm -f
-	rm tcp-ip
+	rm tcpip
