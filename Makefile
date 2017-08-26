@@ -2,14 +2,24 @@ CC := $gcc
 CFLAGS := -Wall -g	\
 	-I src/include
 
-OBJS = src/netif/dev_setup.o	\
-       src/netif/tun.o          \
-       src/tun_dev.o
+CUR_DIR := $(shell pwd)
+OBJ_DIR := $(CUR_DIR)/obj
+
+vpath %.o $(OBJ_DIR)
+
+DIRS := src/netif	\
+        src
+
+SRC := $(foreach n, $(DIRS), $(wildcard $(n)/*.c))
+
+
+OBJS := $(patsubst src/%.c, obj/%.o, $(SRC))
 
 tcp-ip: $(OBJS)
 	$(CC) -o tcpip $(OBJS)
 	
-$(OBJS):%.o:%.c
+$(OBJS):obj/%.o:src/%.c
+	@mkdir -p $(@D)
 	$(CC) -c $(CFLAGS) $< -o $@
 
 .PHONY: clean
