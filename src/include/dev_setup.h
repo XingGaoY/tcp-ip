@@ -9,7 +9,6 @@
 
 #define exe_length 10
 #define ip_route "10.0.0.0/24"
-#define ip_addr "10.0.0.5/24"
 
 int run_ip_set(char *arg[]);
 

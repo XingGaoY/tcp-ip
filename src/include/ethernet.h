@@ -1,20 +1,13 @@
 #ifndef _ETHERNET_H_
 #define _ETHERNET_H_
 
-#include<stdint.h>
-
-#ifndef ETH_HWADDR_LEN
-#define ETH_HWADDR_LEN 6
-#endif
-
-struct eth_addr{
-  uint8_t addr[ETH_HWADDR_LEN];
-};
+#include"ip4_addr.h"
 
 struct eth_hdr{
   struct eth_addr dest;
   struct eth_addr src;
   uint16_t type;
+  char payload[];
 };
 
 /**
