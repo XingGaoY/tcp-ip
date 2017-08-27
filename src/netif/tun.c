@@ -1,5 +1,7 @@
 #include "tun.h"
 
+static int tunfd;
+
 int tun_alloc(char *dev){
   struct ifreq ifr;
   int fd, err;
@@ -26,5 +28,10 @@ int tun_alloc(char *dev){
   }
 
   strcpy(dev, ifr.ifr_name);
+  tunfd = fd;
   return fd;
+}
+
+void tun_write(char *buf, int len){
+  write(tunfd, buf, len);
 }

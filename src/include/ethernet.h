@@ -2,6 +2,9 @@
 #define _ETHERNET_H_
 
 #include"ip4_addr.h"
+#include"netif.h"
+
+#define SIZEOF_ETH_HDR 14
 
 struct eth_hdr{
   struct eth_addr dest;
@@ -48,6 +51,7 @@ enum eth_type {
   ETHTYPE_QINQ      = 0x9100U
 };
 
-int ethernet_input(char *buf);
+int ethernet_input(char *frame);
+int ethernet_output(struct eth_hdr *frame, const struct eth_addr *src, const struct eth_addr *dst, uint16_t eth_type, int sizeof_frame);
 
 #endif //_ETHERNET_H_

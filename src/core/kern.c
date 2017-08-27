@@ -1,8 +1,8 @@
 #include"dev_setup.h"
 #include"tun.h"
+#include"netif.h"
 #include"ethernet.h"
-
-#define BUF_SIZE 128
+#include"util.h"
 
 int main(int argc, char** argv){
   int tun_fd;
@@ -15,6 +15,13 @@ int main(int argc, char** argv){
 
   if(set_up_dev(dev) != 0)
     perror("Unable to set up device");
+
+  netdev_init();
+
+  printf("My hardware addr: ");
+  print_eth_addr(&netif->hwaddr);
+  printf("My ip addr: ");
+  print_ip_addr(&netif->ipaddr);
 
   while(1){
     read(tun_fd, buf, 128);

@@ -4,6 +4,7 @@
 #include"def.h"
 #include"ethernet.h"
 #include"ip4_addr.h"
+#include"netif.h"
 
 #define SIZEOF_ETHARP_HDR 28
 
@@ -30,7 +31,7 @@ enum etharp_opcode{
   ARP_REPLY = 2
 };
 
-void etharp_update_arp_entry(const struct ip4_addr *ipaddr, struct eth_addr *ethaddr, uint8_t flags);
+void etharp_update_arp_entry(const struct ip4_addr *ipaddr, struct eth_addr *ethaddr);
 
 void
 etharp_raw(const struct eth_addr *ethsrc_addr, const struct eth_addr *ethdst_addr,

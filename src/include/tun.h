@@ -14,4 +14,6 @@
 
 int tun_alloc(char *dev);
 
+void tun_write(char *buf, int len);
+
 #endif //_TUN_H_

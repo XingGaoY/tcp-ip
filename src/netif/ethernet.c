@@ -2,16 +2,13 @@
 #include"etharp.h"
 #include"util.h"
 
-struct eth_addr netif_hwaddr;
-struct ip4_addr netif_ip;
-
 /* ethernet_input -- process received ethernet frams.
- * @param buf char* the frame received actually
+ * @param frame char* the frame received actually
  */
-int ethernet_input(char *buf){
+int ethernet_input(char *frame){
   //omit type check and specific prot
   //simply parse header now
-  struct eth_hdr *ethhdr = (struct eth_hdr*)buf;
+  struct eth_hdr *ethhdr = (struct eth_hdr*)frame;
   uint16_t type;
 
   printf("ethernet_input:\n");
@@ -31,6 +28,26 @@ int ethernet_input(char *buf){
     default:
       break;
   }
+
+  return 1;
+}
+
+/* ethernet_output -- fill in the ethernet header, before sending the frame.
+ * @param payload the packet to send.
+ * @param src the source MAC address to be copied into the ethernet header
+ * @param dst the destination MAC address to be copied into the ethernet header
+ * @param eth_type ethernet type (@ref eth_type)
+ * @return 1 if the packet was sent, -1 on failure
+ */
+int ethernet_output(struct eth_hdr *frame, const struct eth_addr *src, const struct eth_addr *dst, uint16_t eth_type, int sizeof_frame){
+  struct eth_hdr *ethhdr = (struct eth_hdr*)frame;
+  uint16_t eth_type_be = lwip_htons(eth_type);
+  
+  ethhdr->type = eth_type_be;
+  ethhdr->dest = *dst;
+  ethhdr->src = *src;
+
+  netdev_xmit((char*)frame, sizeof_frame);
 
   return 1;
 }

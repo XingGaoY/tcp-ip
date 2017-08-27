@@ -3,6 +3,8 @@
 
 #include"ip4_addr.h"
 
+void print_ip_addr(const struct ip4_addr *addr);
+
 void print_ip_addr2(struct ip4_addr2 *addr);
 
 void print_eth_addr(struct eth_addr *addr);

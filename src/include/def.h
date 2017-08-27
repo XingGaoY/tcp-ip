@@ -9,6 +9,8 @@
 /*-------------------------------*/
 /* some config, move out someday */
 #define verbose
+#define ARP_TABLE_SIZE  10
+#define BUF_SIZE 128
 /*-------------------------------*/
 
 #ifndef ETH_HWADDR_LEN

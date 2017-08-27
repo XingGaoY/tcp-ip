@@ -27,8 +27,4 @@ struct eth_addr{
   uint8_t addr[ETH_HWADDR_LEN];
 };
 
-//netif, temperarily put it as some global variables
-extern struct eth_addr netif_hwaddr;
-extern struct ip4_addr netif_ip;
-
 #endif //_IP4_ADDR_H_
