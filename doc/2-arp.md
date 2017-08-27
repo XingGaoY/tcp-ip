@@ -4,14 +4,14 @@ ARP provide a mapping between the two different forms of addresses: 32-bit IP ad
 The network interface has a hardware address(the 48-bit value). Frame exchanged at the hardware level must be addressed to the corect **interface**. Knowing the host's IP is not enough, the dest's hardware addr must be known to send it data. And the ARP is to provide a dynamic mapping between them.
 
 ARP request is an Ethernet frame.
-
+```
 32-bit Internet address  
     |        /|\  
     |arp      |rarp  
     |         |  
    \|/        |  
 48-bit Ethernet address  
-
+```
 ARP provides a **dynamic mapping** from IP address to the corresponding hardware address, which happens automatically.
 
 **Mention the example:**
@@ -88,11 +88,10 @@ Temperarily, there is no frame padding in the program v0.2.
 In one terminate, I execute my program. And execute arping in another, I got:
 ```
 root@ubuntu:/home/yxg/Documents/tcp-ip# ./tcpip 
-My hardware addr:        a:       b:       c:       d:       e:       f
-My ip addr:       10.       0.       0.       4
+My hardware addr:        0a:0b:0c:0d:0e:0f
+My ip addr:              10.0.0.4
 =====
 Ethernet frame:
-
 ffffffffffff9a25
 0853a4ac08060001
 0800060400019a25
@@ -101,25 +100,24 @@ ffffffffffff0a00
 0004000000000000
 =====
 ethernet_input:
-dest:      ff:      ff:      ff:      ff:      ff:      ff
-src:      9a:      25:       8:      53:      a4:      ac
-type:             806
+dest:           ff:ff:ff:ff:ff:ff
+src:            9a:25:8:53:a4:ac
+type:           0806
 Incoming ARP.
-hwtype:                1
-proto:              800
-hwlen:        6
-protolen:        4
-opcode:                1
-src's hwaddr:      9a:      25:       8:      53:      a4:      ac
-src's ipaddr:     192.     168.     202.     131
-dest's hwaddr:      ff:      ff:      ff:      ff:      ff:      ff
-dest's ipaddr:      10.       0.       0.       4
+hwtype:         1
+proto:          0800
+hwlen:          6
+protolen:       4
+opcode:         1
+src's hwaddr:   9a:25:08:53:a4:ac
+src's ipaddr:   192.168.202.131
+dest's hwaddr:  ff:ff:ff:ff:ff:ff
+dest's ipaddr:  10.0.0.4
 Updating arp table...
 New arp entry index: 0
 ARP for us, sending a response...
 =====
 Ethernet frame:
-
 0a0b0c0d0e0f9a25
 0853a4ac08060001
 0800060400019a25
@@ -128,19 +126,19 @@ Ethernet frame:
 0004000000000000
 =====
 ethernet_input:
-dest:       a:       b:       c:       d:       e:       f
-src:      9a:      25:       8:      53:      a4:      ac
-type:             806
+dest:           0a:0b:0c:0d:0e:0f
+src:            9a:25:08:53:a4:ac
+type:           0806
 Incoming ARP.
-hwtype:                1
-proto:              800
-hwlen:        6
-protolen:        4
-opcode:                1
-src's hwaddr:      9a:      25:       8:      53:      a4:      ac
-src's ipaddr:     192.     168.     202.     131
-dest's hwaddr:       a:       b:       c:       d:       e:       f
-dest's ipaddr:      10.       0.       0.       4
+hwtype:         1
+proto:          0800
+hwlen:          6
+protolen:       4
+opcode:         1
+src's hwaddr:   9a:25:08:53:a4:ac
+src's ipaddr:   192.168.202.131
+dest's hwaddr:  0a:0b:0c:0d:0e:0f
+dest's ipaddr:  10.0.0.4
 Updating arp table...
 Found arp entry index: 0
 ARP for us, sending a response...
@@ -158,7 +156,7 @@ listening on tap0, link-type EN10MB (Ethernet), capture size 262144 bytes
 20:45:07.070662 ARP, Request who-has 10.0.0.4 (0a:0b:0c:0d:0e:0f (oui Unknown)) tell 192.168.202.131, length 28
 20:45:07.071012 ARP, Reply 10.0.0.4 is-at 0a:0b:0c:0d:0e:0f (oui Unknown), length 28
 ```
-I slightly modified the Ethernet frame output to make the result shorter.
+I slightly modified the output to make the result shorter and better to read.(I will change the printf format in the codes)
 
 First, in the tcpip, we can see the ARP request is parsed correctly.  
 And as I mannually set the program's IP address as 10.0.0.4, it regards the received ARP request for it.  
