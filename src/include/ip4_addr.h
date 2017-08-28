@@ -22,9 +22,4 @@ struct ip4_addr2{
 #define IPADDR2_COPY(dest, src) memcpy(dest, src, sizeof(struct ip4_addr))
 #endif
 
-//TODO::wrong location, move it somewhere else
-struct eth_addr{
-  uint8_t addr[ETH_HWADDR_LEN];
-};
-
 #endif //_IP4_ADDR_H_

@@ -1,6 +1,7 @@
 #include"ethernet.h"
 #include"etharp.h"
 #include"util.h"
+#include"ip4.h"
 
 /* ethernet_input -- process received ethernet frams.
  * @param frame char* the frame received actually
@@ -24,7 +25,10 @@ int ethernet_input(char *frame){
     case ETHTYPE_ARP:
       etharp_input(ethhdr->payload);
       break;
-   
+
+    case ETHTYPE_IP:
+      ip4_input(ethhdr->payload);
+      break;
     default:
       break;
   }

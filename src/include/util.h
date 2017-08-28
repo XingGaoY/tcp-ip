@@ -2,6 +2,7 @@
 #define _UTIL_H_
 
 #include"ip4_addr.h"
+#include"eth_addr.h"
 
 void print_ip_addr(const struct ip4_addr *addr);
 

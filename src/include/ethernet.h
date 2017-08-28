@@ -1,7 +1,6 @@
 #ifndef _ETHERNET_H_
 #define _ETHERNET_H_
 
-#include"ip4_addr.h"
 #include"netif.h"
 
 #define SIZEOF_ETH_HDR 14

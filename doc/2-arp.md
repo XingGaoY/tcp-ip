@@ -171,3 +171,8 @@ And it send it unicast than broadcast.
 Second, the `arping` program showed that it had received the unicast ARP reply and the hardware address we set randomly, which means our ARP reply is right.  
 
 Finally, the `tcpdump` result also verified my ARP functioning correctly. The "oui Unknown" after the hardware address is because that the hardware address I set is not in a legal format.
+
+### TODO
+- A timer and mechanism to throw away old entry
+- Automatic periodly ARP request sending
+- Sending ARP request if a frame is going to be sent to a ip addr without hwaddr
