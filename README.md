@@ -11,6 +11,9 @@ I refered to saminiir's step, and mark them with tags
 ## v0.2
 [Implement ARP, handles ARP req and send reply](doc/2-arp.md) 
 
+## v0.3
+[Add IP procedure to receive and send datagram, parse IP-hdr, handles ICMP req and send ICMP reply](doc/3-iphdr-icmp.md)
+
 ## Reference
 - TCP/IP Illustrated vol.1
 - https://github.com/saminiir/level-ip
