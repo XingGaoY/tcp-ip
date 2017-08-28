@@ -24,6 +24,7 @@ int main(int argc, char** argv){
   print_ip_addr(&netif->ipaddr);
 
   while(1){
+    memset(buf, 0, BUF_SIZE);
     read(tun_fd, buf, 128);
     printf("=====\nEthernet frame:\n");
     for(int i=0; i<128; i++){

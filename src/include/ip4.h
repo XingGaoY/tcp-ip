@@ -3,6 +3,8 @@
 
 #include "ip4_addr.h"
 
+#define SIZEOF_IP4_HDR 20 
+
 #define IP_PROTO_ICMP    1
 #define IP_PROTO_IGMP    2
 #define IP_PROTO_UDP     17
@@ -38,5 +40,6 @@ struct ip_hdr{
 #define IPH_VHL_SET(hdr, v, hl) (hdr)->_v_hl = (u8_t)((((v) << 4) | (hl)))
 
 void ip4_input(char *p);
+void ip4_output(char *p, struct ip4_addr src, struct ip4_addr dest);
 
 #endif // _IP4_H_

@@ -40,5 +40,6 @@ etharp_raw(const struct eth_addr *ethsrc_addr, const struct eth_addr *ethdst_add
            const uint16_t opcode);
 
 void etharp_input(char *buf);
+void etharp_output(char *buf, struct ip4_addr *dst, unsigned int len);
 
 #endif //_ETHARP_H_

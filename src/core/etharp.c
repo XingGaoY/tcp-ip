@@ -162,3 +162,28 @@ void etharp_input(char *payload){
       break;
   }
 }
+
+void etharp_output(char *buf, struct ip4_addr *dst, unsigned int len){
+  unsigned int ethlen = len + SIZEOF_ETH_HDR;
+  char msg[ethlen];
+  struct eth_addr *ethsrc_addr, *ethdst_addr;
+
+  struct eth_hdr *frame = (struct eth_hdr *)msg;
+
+  memcpy(&frame->payload, buf, len);
+
+  /* unicast or muilticast need to be checked */
+  /* and check ipaddr outside local network or not is necessary */
+  /* as we only use TAP, we simply check arp table instead */
+  for(int i = 0; i < ARP_TABLE_SIZE; i++){
+    if(dst->addr == arp_table[i].ipaddr.addr){
+      ethdst_addr = &arp_table[i].ethaddr;
+
+      printf("Found the dst hwaddr in ARP cache: ");
+      print_eth_addr(ethdst_addr);
+    }
+  }
+  ethsrc_addr = &netif->hwaddr;
+  
+  ethernet_output(frame, ethsrc_addr, ethdst_addr, ETHTYPE_IP, ethlen);
+}
