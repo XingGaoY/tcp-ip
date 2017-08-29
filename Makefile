@@ -1,5 +1,5 @@
 CC := $gcc
-CFLAGS := -Wall -g	\
+CFLAGS := -Wall -Werror -g -pthread	\
 	-I src/include
 
 CUR_DIR := $(shell pwd)
@@ -16,7 +16,7 @@ SRC := $(foreach n, $(DIRS), $(wildcard $(n)/*.c))
 OBJS := $(patsubst src/%.c, obj/%.o, $(SRC))
 
 tcp-ip: $(OBJS)
-	$(CC) -o tcpip $(OBJS)
+	$(CC) $(CFLAGS) -o tcpip $(OBJS)
 	
 $(OBJS):obj/%.o:src/%.c
 	@mkdir -p $(@D)
