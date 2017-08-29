@@ -39,6 +39,15 @@ struct ip_hdr{
 /* Macros to set struct ip_hdr fields: */
 #define IPH_VHL_SET(hdr, v, hl) (hdr)->_v_hl = (u8_t)((((v) << 4) | (hl)))
 
+/* Maintain the current ip datagram info */
+struct ip_globals{
+  struct ip_hdr *current_ip4_header;
+  uint16_t current_ip_header_tot_len;
+  struct ip4_addr current_iphdr_src;
+  struct ip4_addr current_iphdr_dest;
+};
+extern struct ip_globals ip_data;
+
 void ip4_input(char *p);
 void ip4_output(char *p, struct ip4_addr src, struct ip4_addr dest);
 

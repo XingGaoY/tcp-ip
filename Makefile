@@ -1,5 +1,5 @@
 CC := $gcc
-CFLAGS := -Wall -Werror -g -pthread	\
+CFLAGS := -Wall -g -pthread	\
 	-I src/include
 
 CUR_DIR := $(shell pwd)

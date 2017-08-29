@@ -2,6 +2,9 @@
 #include "util.h"
 #include "icmp.h"
 #include "etharp.h"
+#include "udp.h"
+
+struct ip_globals ip_data;
 
 /**
  * This function is called by the network interface device driver when
@@ -47,10 +50,17 @@ void ip4_input(char *p){
   if(checksum(iphdr, iphdr_hlen) != 0)
     return;
 
+  ip_data.current_ip4_header = iphdr;
+  ip_data.current_ip_header_tot_len = IPH_HL(iphdr) * 4;
+
   /* Send to upper layers */
   switch(IPH_PROTO(iphdr)){
     case IP_PROTO_ICMP:
       icmp_input(p);
+      break;
+    case IP_PROTO_UDP:
+      udp_input(iphdr->data);
+      break;
   }
 }
 
