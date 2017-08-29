@@ -17,17 +17,17 @@ void icmp_input(char *p){
   /* some check need to be done 
      but I just check the type */
   if(iecho->type != ICMP_ECHO){
-    printf("icmp type not implemented yet: %x\n", iecho->type);
+    fprintf(logout, "icmp type not implemented yet: %x\n", iecho->type);
     return;
   }
 
   switch(iecho->type){
     case ICMP_ECHO:
-      printf("-----\n");
-      printf("Received an icmp echo...\n");
-      printf("type: %02x  code: %02x  checksum: %04x  identifier: %04x  seqnum: %04x\n", iecho->type, iecho->code, iecho->chksum, iecho->id, iecho->seqno);
+      fprintf(logout, "-----\n");
+      fprintf(logout, "Received an icmp echo...\n");
+      fprintf(logout, "type: %02x  code: %02x  checksum: %04x  identifier: %04x  seqnum: %04x\n", iecho->type, iecho->code, iecho->chksum, iecho->id, iecho->seqno);
 
-      printf("checksum calculated: %04x\n", checksum(iecho, PP_HTONS(IPH_LEN(ip)) - 4 * IPH_HL(ip)));
+      fprintf(logout, "checksum calculated: %04x\n", checksum(iecho, PP_HTONS(IPH_LEN(ip)) - 4 * IPH_HL(ip)));
       /* If checksum not in consistence, drop the datagram silently */
       if(checksum(iecho, PP_HTONS(IPH_LEN(ip)) - 4 * IPH_HL(ip)) != 0)
         return;

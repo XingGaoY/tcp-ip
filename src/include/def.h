@@ -6,6 +6,8 @@
 #include<string.h>
 #include<stdlib.h>
 
+extern FILE *logout;
+
 /*-------------------------------*/
 /* some config, move out someday */
 #define verbose

@@ -35,7 +35,7 @@ static int etharp_find_entry(const struct ip4_addr *ipaddr){
       empty = i;
     else if(state != ETHARP_STATE_EMPTY){
       if(ipaddr && ipaddr->addr == arp_table[i].ipaddr.addr){
-         printf("Found arp entry index: %d\n", i);
+         fprintf(logout, "Found arp entry index: %d\n", i);
          return i;
       }
     }
@@ -51,7 +51,7 @@ static int etharp_find_entry(const struct ip4_addr *ipaddr){
     return -1;
   }
 
-  printf("New arp entry index: %d\n", i);
+  fprintf(logout, "New arp entry index: %d\n", i);
   arp_table[i].state = ETHARP_STATE_EMPTY;
   if(ipaddr)
     memcpy(&arp_table[i].ipaddr, ipaddr, sizeof(struct ip4_addr));
@@ -63,7 +63,7 @@ static int etharp_find_entry(const struct ip4_addr *ipaddr){
  */
 void etharp_update_arp_entry(const struct ip4_addr *ipaddr, struct eth_addr *ethaddr){
   int i;
-  printf("Updating arp table...\n");
+  fprintf(logout, "Updating arp table...\n");
 
   //TODO some check of ip addr type is omitted
 
@@ -118,18 +118,18 @@ void etharp_input(char *payload){
   hdr = (struct etharp_hdr *)payload;
 
 #ifdef verbose
-  printf("-----\n");
-  printf("Incoming ARP...\n");
-  printf("hwtype = %x\tproto = %04x\thwlen = %x\tprotolen = %x\topcode = %x\n", (unsigned int)PP_HTONS(hdr->hwtype), (unsigned int)PP_HTONS(hdr->proto), hdr->hwlen, hdr->protolen, (unsigned int)PP_HTONS(hdr->opcode));
-  printf("src's hwaddr = ");
+  fprintf(logout, "-----\n");
+  fprintf(logout, "Incoming ARP...\n");
+  fprintf(logout, "hwtype = %x\tproto = %04x\thwlen = %x\tprotolen = %x\topcode = %x\n", (unsigned int)PP_HTONS(hdr->hwtype), (unsigned int)PP_HTONS(hdr->proto), hdr->hwlen, hdr->protolen, (unsigned int)PP_HTONS(hdr->opcode));
+  fprintf(logout, "src's hwaddr = ");
   print_eth_addr(&hdr->shwaddr);
-  printf("%8ssrc's ipaddr = ", "");
+  fprintf(logout, "%8ssrc's ipaddr = ", "");
   print_ip_addr2(&hdr->sipaddr);
-  printf("\ndest's hwaddr = ");
+  fprintf(logout, "\ndest's hwaddr = ");
   print_eth_addr(&hdr->dhwaddr);
-  printf("%8sdest's ipaddr = ", "");
+  fprintf(logout, "%8sdest's ipaddr = ", "");
   print_ip_addr2(&hdr->dipaddr);
-  printf("\n");
+  fprintf(logout, "\n");
 #endif
 
   /* Copy struct ip4_addr2 to aligned ip4_addr, to support compilers without
@@ -152,13 +152,13 @@ void etharp_input(char *payload){
      * reply. In any case, we time-stamp any existing ARP entry,
      * and possibly send out an IP packet that was queued on it. */
       if(for_us){
-      printf("ARP for us, sending a response...\n");
+      fprintf(logout, "ARP for us, sending a response...\n");
         /* send ARP response */
       etharp_raw(&netif->hwaddr, &hdr->shwaddr, &netif->hwaddr, &netif->ipaddr, &hdr->shwaddr, &sipaddr, ARP_REPLY);
       }
       else
         /* ignore the unconfigured condition */
-        printf("ARP request not for us, ignored");
+        fprintf(logout, "ARP request not for us, ignored");
       break;
     default:
       break;
@@ -181,9 +181,9 @@ void etharp_output(char *buf, struct ip4_addr *dst, unsigned int len){
     if(dst->addr == arp_table[i].ipaddr.addr){
       ethdst_addr = &arp_table[i].ethaddr;
 
-      printf("Found the dst hwaddr in ARP cache: ");
+      fprintf(logout, "Found the dst hwaddr in ARP cache: ");
       print_eth_addr(ethdst_addr);
-      printf("\n");
+      fprintf(logout, "\n");
     }
   }
   ethsrc_addr = &netif->hwaddr;

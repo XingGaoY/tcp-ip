@@ -13,13 +13,13 @@ int ethernet_input(char *frame){
   uint16_t type;
   
   if(lwip_htons(ethhdr->type) != ETHTYPE_IPV6){		//eliminate some rubbish frame
-    printf("==============================\n");
-    printf("ethernet_input:\n");
-    printf("dest = ");
+    fprintf(logout, "==============================\n");
+    fprintf(logout, "ethernet_input:\n");
+    fprintf(logout, "dest = ");
     print_eth_addr(&ethhdr->dest);
-    printf("%8ssrc = ", "");
+    fprintf(logout, "%8ssrc = ", "");
     print_eth_addr(&ethhdr->src);
-    printf("%8stype = %04x\n", "", lwip_htons(ethhdr->type));
+    fprintf(logout, "%8stype = %04x\n", "", lwip_htons(ethhdr->type));
   }
 
   type = PP_HTONS(ethhdr->type);
