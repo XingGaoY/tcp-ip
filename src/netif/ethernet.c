@@ -11,13 +11,16 @@ int ethernet_input(char *frame){
   //simply parse header now
   struct eth_hdr *ethhdr = (struct eth_hdr*)frame;
   uint16_t type;
-
-  printf("ethernet_input:\n");
-  printf("dest:");
-  print_eth_addr(&ethhdr->dest);
-  printf("src:");
-  print_eth_addr(&ethhdr->src);
-  printf("type:%16x\n", lwip_htons(ethhdr->type));
+  
+  if(lwip_htons(ethhdr->type) != ETHTYPE_IPV6){		//eliminate some rubbish frame
+    printf("==============================\n");
+    printf("ethernet_input:\n");
+    printf("dest = ");
+    print_eth_addr(&ethhdr->dest);
+    printf("%8ssrc = ", "");
+    print_eth_addr(&ethhdr->src);
+    printf("%8stype = %04x\n", "", lwip_htons(ethhdr->type));
+  }
 
   type = PP_HTONS(ethhdr->type);
   

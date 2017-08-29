@@ -18,21 +18,22 @@ int main(int argc, char** argv){
 
   netdev_init();
 
-  printf("My hardware addr: ");
+  printf("My hardware addr = ");
   print_eth_addr(&netif->hwaddr);
-  printf("My ip addr: ");
+  printf("\tMy ip addr = ");
   print_ip_addr(&netif->ipaddr);
+  printf("\n");
 
   while(1){
     memset(buf, 0, BUF_SIZE);
     read(tun_fd, buf, 128);
-    printf("=====\nEthernet frame:\n");
+    /*printf("=====\nEthernet frame:\n");
     for(int i=0; i<128; i++){
       if(i%8 == 0) printf("\n");
       printf("%02x", (unsigned char)buf[i]);
     }
     printf("\n=====\n");
-
+    */
     ethernet_input(buf);
   }
 }

@@ -118,16 +118,18 @@ void etharp_input(char *payload){
   hdr = (struct etharp_hdr *)payload;
 
 #ifdef verbose
-  printf("Incoming ARP.\n");
-  printf("hwtype: %16x\nproto: %16x\nhwlen: %8x\nprotolen: %8x\nopcode: %16x\n", (unsigned int)PP_HTONS(hdr->hwtype), (unsigned int)PP_HTONS(hdr->proto), hdr->hwlen, hdr->protolen, (unsigned int)PP_HTONS(hdr->opcode));
-  printf("src's hwaddr:");
+  printf("-----\n");
+  printf("Incoming ARP...\n");
+  printf("hwtype = %x\tproto = %04x\thwlen = %x\tprotolen = %x\topcode = %x\n", (unsigned int)PP_HTONS(hdr->hwtype), (unsigned int)PP_HTONS(hdr->proto), hdr->hwlen, hdr->protolen, (unsigned int)PP_HTONS(hdr->opcode));
+  printf("src's hwaddr = ");
   print_eth_addr(&hdr->shwaddr);
-  printf("src's ipaddr:");
+  printf("%8ssrc's ipaddr = ", "");
   print_ip_addr2(&hdr->sipaddr);
-  printf("dest's hwaddr:");
+  printf("\ndest's hwaddr = ");
   print_eth_addr(&hdr->dhwaddr);
-  printf("dest's ipaddr:");
+  printf("%8sdest's ipaddr = ", "");
   print_ip_addr2(&hdr->dipaddr);
+  printf("\n");
 #endif
 
   /* Copy struct ip4_addr2 to aligned ip4_addr, to support compilers without
@@ -181,6 +183,7 @@ void etharp_output(char *buf, struct ip4_addr *dst, unsigned int len){
 
       printf("Found the dst hwaddr in ARP cache: ");
       print_eth_addr(ethdst_addr);
+      printf("\n");
     }
   }
   ethsrc_addr = &netif->hwaddr;

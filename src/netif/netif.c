@@ -17,12 +17,12 @@ void netdev_init(){
 }
 
 void netdev_xmit(char *buf, int len){
-  printf("=====\nEthernet frame sent:\n");
+  /*printf("=====\nEthernet frame sent:\n");
   for(int i=0; i<len; i++){
     if(i%8 == 0) printf("\n");
     printf("%02x", (unsigned char)buf[i]);
   }
-  printf("\n=====\n");
+  printf("\n=====\n");*/
 
   tun_write(buf, len);
 }

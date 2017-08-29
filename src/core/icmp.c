@@ -23,8 +23,9 @@ void icmp_input(char *p){
 
   switch(iecho->type){
     case ICMP_ECHO:
-      printf("Received an icmp echo\n");
-      printf("type: %02x\ncode: %02x\nchecksum: %04x\nidentifier: %04x\nseqnum: %04x\n", iecho->type, iecho->code, iecho->chksum, iecho->id, iecho->seqno);
+      printf("-----\n");
+      printf("Received an icmp echo...\n");
+      printf("type: %02x  code: %02x  checksum: %04x  identifier: %04x  seqnum: %04x\n", iecho->type, iecho->code, iecho->chksum, iecho->id, iecho->seqno);
 
       printf("checksum calculated: %04x\n", checksum(iecho, PP_HTONS(IPH_LEN(ip)) - 4 * IPH_HL(ip)));
       /* If checksum not in consistence, drop the datagram silently */

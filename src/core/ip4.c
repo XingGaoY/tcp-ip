@@ -19,9 +19,10 @@ void ip4_input(char *p){
   uint16_t iphdr_hlen;
 
   iphdr = (struct ip_hdr*)p;
-  printf("Received an IP datagram:\n");
 
-  printf("version: %01x\nheader length: %01x\nTOS: %02x\ntotal length: %04x\nidentification: %04x\noffset: %04x\nTTL: %02x\nproto: %02x\nheader checksum: %04x\n", 
+  printf("-----\n");
+  printf("Incoming an IP datagram...\n");
+  printf("version = %01x  header length = %01x  TOS = %02x  total length = %04x  identification = %04x\noffset = %04x  TTL = %02x  proto = %02x  header checksum = %04x\n", 
 							IPH_V(iphdr),
 							IPH_HL(iphdr),
 							IPH_TOS(iphdr),
@@ -31,9 +32,9 @@ void ip4_input(char *p){
 							IPH_TTL(iphdr),
 							IPH_PROTO(iphdr),
 							IPH_CHKSUM(iphdr));
-  printf("src's ip:");
+  printf("src's ip = ");
   print_ip_addr(&iphdr->src);
-  printf("dst's ip:");
+  printf("\tdst's ip = ");
   print_ip_addr(&iphdr->dest);
 
   iphdr_hlen = IPH_HL(iphdr);
@@ -41,7 +42,7 @@ void ip4_input(char *p){
 
   /* Here comes some checks of header
      we only do the checksum check now */
-  printf("checksum: %02x\n", checksum(iphdr, iphdr_hlen));
+  printf("\nchecksum calculated: %02x\n", checksum(iphdr, iphdr_hlen));
   /* If checksum not in consistence, drop the datagram silently */
   if(checksum(iphdr, iphdr_hlen) != 0)
     return;
