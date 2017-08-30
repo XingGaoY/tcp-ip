@@ -18,11 +18,6 @@ struct sk_buff{
 
   unsigned int len;		// The data part len in SKB. Changed when SKB transmitted from layer to layer. 
 
-  unsigned int data_len;
-  unsigned int mac_len;
-
-  unsigned int truesize;
-
   void *head, *data, *tail, *end;
 };
 
@@ -37,7 +32,9 @@ struct sk_buff_head{
 void *skb_push(struct sk_buff *skb, int len);
 void *skb_pull(struct sk_buff *skb, int len);
 void *skb_add_hdr(struct sk_buff *skb, void *hdr, int len);
+void *skb_add_data(struct sk_buff *skb, void *data, int len);
 
 /* I do not permit data frame with varied length, so no size parameter now */
 struct sk_buff *alloc_skb();
+void kfree_skb(struct sk_buff *skb);
 #endif // _SKBUFF_H_

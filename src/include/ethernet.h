@@ -1,15 +1,16 @@
 #ifndef _ETHERNET_H_
 #define _ETHERNET_H_
 
-#include"netif.h"
+#include "netif.h"
+#include "skbuff.h"
 
 #define SIZEOF_ETH_HDR 14
+#define MIN_ETH_LEN 60
 
 struct eth_hdr{
   struct eth_addr dest;
   struct eth_addr src;
   uint16_t type;
-  char payload[];
 };
 
 /**
@@ -50,7 +51,7 @@ enum eth_type {
   ETHTYPE_QINQ      = 0x9100U
 };
 
-int ethernet_input(char *frame);
-int ethernet_output(struct eth_hdr *frame, const struct eth_addr *src, const struct eth_addr *dst, uint16_t eth_type, int sizeof_frame);
+int ethernet_input(struct sk_buff *skb);
+int ethernet_output(struct sk_buff *skb, const struct eth_addr *src, const struct eth_addr *dst, uint16_t eth_type);
 
 #endif //_ETHERNET_H_

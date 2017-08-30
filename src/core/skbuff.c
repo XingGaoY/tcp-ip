@@ -1,7 +1,16 @@
 #include "skbuff.h"
 
-void *skb_add_hdr(struct sk_buff *skb, void *hdr, int len){  
+void *skb_add_hdr(struct sk_buff *skb, void *hdr, int len){
   memcpy(skb_push(skb, len), hdr, len);
+  return skb->data;
+}
+
+void *skb_add_data(struct sk_buff *skb, void *data, int len){  
+  memcpy(skb->data, data, len);
+  
+  skb->tail += len;
+  skb->len += len;
+
   return skb->data;
 }
 
@@ -37,11 +46,14 @@ struct sk_buff *alloc_skb(){
   memset(skb, 0, sizeof(struct sk_buff));
   memset(data, 0, MAX_FRAME_LEN);
 
-  skb->truesize = MAX_FRAME_LEN + sizeof(struct sk_buff);
   skb->head = data;
   skb->data = data;
   skb->tail = data;
   skb->end = data + MAX_FRAME_LEN;
 
   return skb;
+}
+
+void kfree_skb(struct sk_buff *skb){
+
 }

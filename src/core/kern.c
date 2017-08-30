@@ -36,11 +36,5 @@ int main(int argc, char** argv){
 
   netdev_init();
 
-  fprintf(logout, "My hardware addr = ");
-  print_eth_addr(&netif->hwaddr);
-  fprintf(logout, "\tMy ip addr = ");
-  print_ip_addr(&netif->ipaddr);
-  fprintf(logout, "\n");
-
   netdev_listen();
 }

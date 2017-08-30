@@ -1,7 +1,7 @@
 //TODO timer to update arp table
 
-#include"etharp.h"
-#include"util.h"
+#include "etharp.h"
+#include "util.h"
 
 /** ARP states */
 enum etharp_state{
@@ -84,38 +84,41 @@ etharp_raw(const struct eth_addr *ethsrc_addr, const struct eth_addr *ethdst_add
            const struct eth_addr *hwsrc_addr, const struct ip4_addr *ipsrc_addr,
            const struct eth_addr *hwdst_addr, const struct ip4_addr *ipdst_addr,
            const uint16_t opcode){
-  struct eth_hdr *frame;
+  struct sk_buff *skb;
   struct etharp_hdr *hdr;
   int len;
   len = SIZEOF_ETH_HDR + SIZEOF_ETHARP_HDR;
   char f[len];
 
-  frame = (struct eth_hdr *)f;
-  hdr = (struct etharp_hdr *)frame->payload;
+  skb = alloc_skb();
+  skb->data += MAX_ETHARP_HDR;
 
+  hdr = (struct etharp_hdr *)malloc(SIZEOF_ETHAPR_HDR);
   hdr->opcode = PP_HTONS(opcode);
   hdr->hwtype = PP_HTONS(HWTYPE_ETHERNET);
   hdr->proto = PP_HTONS(ETHTYPE_IP);
   hdr->hwlen = ETH_HWADDR_LEN;
   hdr->protolen = sizeof(struct ip4_addr);
-
   hdr->shwaddr = *hwsrc_addr;
   hdr->dhwaddr = *hwdst_addr;
   IPADDR2_COPY(&hdr->sipaddr, ipsrc_addr);
   IPADDR2_COPY(&hdr->dipaddr, ipdst_addr);
 
-  ethernet_output(frame, ethsrc_addr, ethdst_addr, ETHTYPE_ARP, len);
+  skb_add_data(skb, hdr, SIZEOF_ETHARP_HDR);
+
+  ethernet_output(skb, ethsrc_addr, ethdst_addr, ETHTYPE_ARP);
 }
 
-void etharp_input(char *payload){
+void etharp_input(sk_buff *skb){
   struct etharp_hdr *hdr;
   struct ip4_addr sipaddr, dipaddr;
+  struct eth_addr shwaddr;
 
   /* Simply guess the ARP is for us */
   uint8_t for_us = 1;
 
   /* Parse the ARP packet */
-  hdr = (struct etharp_hdr *)payload;
+  hdr = (struct etharp_hdr *)skb->data;
 
 #ifdef verbose
   fprintf(logout, "-----\n");
@@ -136,13 +139,16 @@ void etharp_input(char *payload){
    * structure packing (not using structure copy which breaks strict-aliasing rules). */
   IPADDR2_COPY(&sipaddr, &hdr->sipaddr);
   IPADDR2_COPY(&dipaddr, &hdr->dipaddr);
+  shwaddr = hdr->shwaddr;
 
   /* ARP message directed to us?
       -> add IP address in ARP cache; assume requester wants to talk to us,
          can result in directly sending the queued packets for this host.
      ARP message not directed to us?
       ->  update the source IP address in the cache, if present */
-  etharp_update_arp_entry(&sipaddr, &(hdr->shwaddr));
+  etharp_update_arp_entry(&sipaddr, &shwaddr);
+
+  kfree_skb(skb);
 
   /* Now work on the message */
   switch(hdr->opcode){
@@ -154,7 +160,7 @@ void etharp_input(char *payload){
       if(for_us){
       fprintf(logout, "ARP for us, sending a response...\n");
         /* send ARP response */
-      etharp_raw(&netif->hwaddr, &hdr->shwaddr, &netif->hwaddr, &netif->ipaddr, &hdr->shwaddr, &sipaddr, ARP_REPLY);
+      etharp_raw(&netif->hwaddr, &shwaddr, &netif->hwaddr, &netif->ipaddr, &shwaddr, &sipaddr, ARP_REPLY);
       }
       else
         /* ignore the unconfigured condition */
@@ -165,14 +171,8 @@ void etharp_input(char *payload){
   }
 }
 
-void etharp_output(char *buf, struct ip4_addr *dst, unsigned int len){
-  unsigned int ethlen = len + SIZEOF_ETH_HDR;
-  char msg[ethlen];
+void etharp_output(struct sk_buff *skb, struct ip4_addr *dst){
   struct eth_addr *ethsrc_addr, *ethdst_addr;
-
-  struct eth_hdr *frame = (struct eth_hdr *)msg;
-
-  memcpy(&frame->payload, buf, len);
 
   /* unicast or muilticast need to be checked */
   /* and check ipaddr outside local network or not is necessary */
@@ -188,5 +188,5 @@ void etharp_output(char *buf, struct ip4_addr *dst, unsigned int len){
   }
   ethsrc_addr = &netif->hwaddr;
   
-  ethernet_output(frame, ethsrc_addr, ethdst_addr, ETHTYPE_IP, ethlen);
+  ethernet_output(skb, ethsrc_addr, ethdst_addr, ETHTYPE_IP);
 }

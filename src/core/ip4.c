@@ -17,11 +17,12 @@ struct ip_globals ip_data;
  *
  * @param p the received IP packet (p->payload points to IP header)
  */
-void ip4_input(char *p){
+void ip4_input(struct sk_buff *skb){
   struct ip_hdr *iphdr;
+  struct ip_cb ipcb;
   uint16_t iphdr_hlen;
 
-  iphdr = (struct ip_hdr*)p;
+  iphdr = (struct ip_hdr*)skb->data;
 
   fprintf(logout, "-----\n");
   fprintf(logout, "Incoming an IP datagram...\n");
@@ -53,19 +54,25 @@ void ip4_input(char *p){
   ip_data.current_ip4_header = iphdr;
   ip_data.current_ip_header_tot_len = IPH_HL(iphdr) * 4;
 
+  ipcb = (struct ip_cb *)skb->cb;
+  ipcb->_id = IPH_ID(iphdr);
+  ipcb->_ttl = IPH_TTL(iphdr);
+  skb->network_header = skb->data;
+  sk_pull(skb, iphdr_hlen);
+
   /* Send to upper layers */
   switch(IPH_PROTO(iphdr)){
     case IP_PROTO_ICMP:
-      icmp_input(p);
+      icmp_input(skb);
       break;
     case IP_PROTO_UDP:
-      udp_input(iphdr->data);
+      udp_input(skb);
       break;
   }
 }
 
-void ip4_output(char *p, struct ip4_addr src, struct ip4_addr dst){
-  struct ip_hdr *iphdr = (struct ip_hdr*)p;
+void ip4_output(struct sk_buff *skb, struct ip4_addr src, struct ip4_addr dst){
+  struct ip_hdr *iphdr = (struct ip_hdr*)malloc(SIZEOF_IP4_HDR);
  
   iphdr->_ttl = IPH_TTL(iphdr) - 1;
   iphdr->src = src;
@@ -73,5 +80,5 @@ void ip4_output(char *p, struct ip4_addr src, struct ip4_addr dst){
 
   iphdr->_chksum = 0;
   iphdr->_chksum = checksum(iphdr, IPH_HL(iphdr)*4);
-  etharp_output(p, &dst, (unsigned int)PP_HTONS(IPH_LEN(iphdr)));
+  etharp_output(skb, &dst, (unsigned int)PP_HTONS(IPH_LEN(iphdr)));
 }

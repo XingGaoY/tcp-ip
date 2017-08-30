@@ -48,7 +48,7 @@ void netdev_listen(){
   }
 }
 
-void netdev_xmit(char *buf, int len){
+void netdev_xmit(struct sk_buff *skb){
   /*printf("=====\nEthernet frame sent:\n");
   for(int i=0; i<len; i++){
     if(i%8 == 0) printf("\n");
@@ -56,5 +56,5 @@ void netdev_xmit(char *buf, int len){
   }
   printf("\n=====\n");*/
 
-  tun_write(buf, len);
+  tun_write(skb->data, skb->len);
 }

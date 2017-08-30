@@ -2,8 +2,11 @@
 #define _IP4_H_
 
 #include "ip4_addr.h"
+#include "sk_buff.h"
 
 #define SIZEOF_IP4_HDR 20 
+
+#define MAX_IP_HDR SIZEOF_ETH_HDR + SIZEOF_IP4_HDR
 
 #define IP_PROTO_ICMP    1
 #define IP_PROTO_IGMP    2
@@ -22,7 +25,12 @@ struct ip_hdr{
   uint16_t _chksum;
   struct ip4_addr src;
   struct ip4_addr dest;
-  char data[];
+};
+
+/* Data in ip_hdr that need to be saved to send back */
+struct ip_cb{
+  uint16_t _id;
+  uint8_t _ttl;
 };
 
 /* Macros to get struct ip_hdr fields: */
@@ -48,7 +56,7 @@ struct ip_globals{
 };
 extern struct ip_globals ip_data;
 
-void ip4_input(char *p);
-void ip4_output(char *p, struct ip4_addr src, struct ip4_addr dest);
+void ip4_input(struct sk_buff *skb);
+void ip4_output(struct sk_buff *skb, struct ip4_addr src, struct ip4_addr dest);
 
 #endif // _IP4_H_
