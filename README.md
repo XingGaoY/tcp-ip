@@ -3,6 +3,34 @@ A simple tcp/ip stack implemented with TUN/TAP device in linux user mode.
 
 The notes and my implementation of tcp/ip stack is maintained here.
 
+# Assignments
+:new:: working on  
+- [x] : implemented but is simplified and lack some feature
+- [ ] : planning to do
+### General
+:new: skbuff
+### Net Device
+- [x] TAP/TUN
+### Link layer
+- [x] Ethernet
+  - [x] Ethernet Header Processing(rcv & xmit)
+- [x] ARP
+  - [x] ARP Header Processing(rcv & xmit)
+  - [x] ARP cache(no timer, only a static table)
+### Network layer
+- [x] IP
+  - [x] IP Header Processing(rcv & xmit)
+- [ ] ICMP
+  - [x] ICMP header Processing(rcv & xmit)
+  - [x] ICMP request and reply(able to answer `ping` program)
+### Transport layer
+- [ ] UDP
+  - :new: UDP Header Processing
+  - :new: `sk`
+  - :new: UDP API for App layer
+### Socket
+- :new: Socket API
+
 # Implemented Step by Step
 I refered to saminiir's step, and mark them with tags 
 ## v0.1
@@ -18,3 +46,4 @@ I refered to saminiir's step, and mark them with tags
 - TCP/IP Illustrated vol.1
 - https://github.com/saminiir/level-ip
 - lwip
+- linux net, [source code](https://github.com/lkl/linux/tree/master/net)
