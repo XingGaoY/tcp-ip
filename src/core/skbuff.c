@@ -1,5 +1,32 @@
 #include "skbuff.h"
 
+void *skb_add_hdr(struct sk_buff *skb, void *hdr, int len){  
+  memcpy(skb_push(skb, len), hdr, len);
+  return skb->data;
+}
+
+void *skb_push(struct sk_buff *skb, int len){
+  skb->data -= len;
+  skb->len += len;
+
+  if(skb->data < skb->head){
+    printf("Data exceed the upper limit of data head\n");
+  }
+
+  return skb->data;
+}
+
+void *skb_pull(struct sk_buff *skb, int len){
+  skb->data += len;
+  skb->len -= len;
+
+  if(skb->data > skb->tail){
+    printf("No data in skb data field\n");
+  }
+
+  return skb->data;
+}
+
 struct sk_buff *alloc_skb(){
   struct sk_buff *skb;
   void *data;
