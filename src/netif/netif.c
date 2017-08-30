@@ -1,5 +1,7 @@
-#include"netif.h"
-#include"tun.h"
+#include "netif.h"
+#include "tun.h"
+#include "ethernet.h"
+#include "dev_setup.h"
 
 struct netif *netif;
 
@@ -13,7 +15,37 @@ void netdev_init(){
   netif->ipaddr.addr = IP_ADDR;
 
   struct eth_addr hw = HW_ADDR;
-  memcpy(&netif->hwaddr, &hw, sizeof(hw)); 
+  memcpy(&netif->hwaddr, &hw, sizeof(hw));
+
+  char *dev = (char*)malloc(IFNAMSIZ);
+  strcpy(dev, "tap0");
+
+  netif->net_fd = tun_alloc(dev);
+
+  if(set_up_dev(dev) != 0)
+    perror("Unable to set up device");
+
+  fprintf(logout, "My hardware addr = ");
+  print_eth_addr(&netif->hwaddr);
+  fprintf(logout, "\tMy ip addr = ");
+  print_ip_addr(&netif->ipaddr);
+  fprintf(logout, "\n");
+}
+
+void netdev_listen(){
+  char *buf = (char*)malloc(MAX_FRAME_LEN);
+  while(1){
+    memset(buf, 0, MAX_FRAME_LEN);
+    read(netif->net_fd, buf, 128);
+    /*fprintf(logout, "=====\nEthernet frame:\n");
+    for(int i=0; i<128; i++){
+      if(i%8 == 0) printf("\n");
+      fprintf(logout, "%02x", (unsigned char)buf[i]);
+    }
+    fprintf(logout, "\n=====\n");
+    */
+    ethernet_input(buf);
+  }
 }
 
 void netdev_xmit(char *buf, int len){

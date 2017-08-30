@@ -3,8 +3,6 @@
 
 #include "def.h"
 
-#define MAX_FRAME_LEN 100 * sizeof(char)
-
 /* The structure used to tranmit msg from different layers */
 struct sk_buff{
   struct sk_buff *next;

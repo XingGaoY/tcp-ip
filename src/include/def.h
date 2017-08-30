@@ -12,7 +12,7 @@ extern FILE *logout;
 /* some config, move out someday */
 #define verbose
 #define ARP_TABLE_SIZE  10
-#define BUF_SIZE 128
+#define MAX_FRAME_LEN 100
 /*-------------------------------*/
 
 #ifndef ETH_HWADDR_LEN
