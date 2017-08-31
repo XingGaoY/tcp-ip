@@ -3,8 +3,11 @@
 
 #include "ip4_addr.h"
 #include "skbuff.h"
+#include "sock.h"
+#include "list.h"
 
 #define SIZEOF_UDP_HDR 8
+#define UDP_HTABLE_SIZE 10
 
 struct udp_hdr{
   uint16_t src;
@@ -14,32 +17,16 @@ struct udp_hdr{
   char data[];
 };
 
-/** This is the common part of all PCB types. It needs to be at the
-   beginning of a PCB type definition. It is located here so that
-   changes to this common part are made in one location instead of
-   having to change all PCB structs. */
-#define IP_PCB \
-  /* ip addresses in network byte order */ \
-  struct ip4_addr local_ip; \
-  struct ip4_addr remote_ip; \
-   /* Socket options */  \
-  uint8_t so_options;      \
-   /* Type Of Service */ \
-  uint8_t tos;              \
-  /* Time To Live */     \
-  uint8_t ttl;               
-
-
 /* the UDP protocol control block */
-struct udp_pcb{
-  IP_PCB;
-  struct udp_pcb *next;
-  uint16_t local_port, remote_port;
+struct udp_sock{
+  struct inet_sock inet;
+  unsigned int corkflag;	// whether pending the dgram to 64Kb before sending
 };
 
 /* the first pcb of the pcb list */
-extern struct udp_pcb *udp_pcbs;
+extern struct hlist_head udp_hash[UDP_HTABLE_SIZE];
 
+void udp_init();
 void udp_input(struct sk_buff *skb);
 
 #endif // _UDP_H_

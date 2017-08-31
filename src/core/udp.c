@@ -1,12 +1,12 @@
 #include "udp.h"
 #include "def.h"
 
-struct udp_pcb *udp_pcbs;
+struct hlist_head udp_hash[UDP_HTABLE_SIZE];
 
 void udp_input(struct sk_buff *skb){
   struct udp_hdr *udphdr;
   uint16_t src, dest;
-  struct udp_pcb *pcb;
+  struct udp_sock udpsock;
 
   udphdr = (struct udp_hdr *)skb->data;
   src = lwip_htons(udphdr->src);
@@ -23,11 +23,7 @@ void udp_input(struct sk_buff *skb){
 
   /* Loop through the udp_pcb, cmp the ip&port and the ip&port in pcb */
   /* and send datagram to the perfect match one or ... */
-  for(pcb = udp_pcbs; pcb != NULL; pcb = pcb->next){
-   
-  }
-  /* UDP multicast is needed to be added */
-  //if(pcb != NULL){
 
-  //}
+  /* UDP multicast is needed to be added */
+
 }
