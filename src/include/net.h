@@ -7,6 +7,8 @@
 
 #define PF_INET 0
 
+#include "socket.h"
+
 enum socket_state{
   SS_FREE = 0,			/* not allocated		*/
   SS_UNCONNECTED,		/* unconnected to any socket	*/
@@ -16,7 +18,7 @@ enum socket_state{
 };
 
 struct socket{
-  socket_state  state;
+  enum socket_state  state;
   const struct proto_ops  *ops;
 
   struct sock *sk;
@@ -36,11 +38,11 @@ struct proto_ops{
 				      struct socket *newsock, int flags);
 	int		(*listen)    (struct socket *sock, int len);
 	int		(*shutdown)  (struct socket *sock, int flags);
-	int		(*sendmsg)   (struct kiocb *iocb, struct socket *sock,
-				      struct msghdr *m, int total_len);
-	int		(*recvmsg)   (struct kiocb *iocb, struct socket *sock,
-				      struct msghdr *m, int total_len,
-				      int flags);
+	//int		(*sendmsg)   (struct kiocb *iocb, struct socket *sock,
+	//			      struct msghdr *m, int total_len);
+	//int		(*recvmsg)   (struct kiocb *iocb, struct socket *sock,
+	//			      struct msghdr *m, int total_len,
+	//			      int flags);
 };
 
 #endif // _NET_H_

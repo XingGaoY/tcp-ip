@@ -1,13 +1,14 @@
 #include "inet_common.h"
+#include <stdlib.h>
 
 struct proto_ops inet_stream_ops = {
   .family = PF_INET,
-  .release = ,
-  .bind = ,
-  .connect = ,
-  .accept = ,
-  .listen = ,
-  .shutdown = ,
-  .sendmsg = ,
-  .recvmsg = 
+  .release = NULL,
+  .bind = NULL,
+  .connect = NULL,
+  .accept = NULL,
+  .listen = NULL,
+  .shutdown = NULL
+  //.sendmsg = NULL,
+  //.recvmsg = NULL
 };

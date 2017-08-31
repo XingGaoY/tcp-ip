@@ -2,6 +2,7 @@
 #define _SKBUFF_H_
 
 #include "def.h"
+#include "sock.h"
 
 /* The structure used to tranmit msg from different layers */
 struct sk_buff{
