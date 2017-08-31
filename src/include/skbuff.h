@@ -9,6 +9,7 @@ struct sk_buff{
   struct sk_buff *next;
   struct sk_buff *prev;
 
+  struct sk_buff_head *list;
   struct sock *sk;
 
   void *transport_header;
@@ -38,4 +39,21 @@ void *skb_add_data(struct sk_buff *skb, void *data, int len);
 /* I do not permit data frame with varied length, so no size parameter now */
 struct sk_buff *alloc_skb();
 void kfree_skb(struct sk_buff *skb);
+
+
+//TODO The lock for the list may be needed
+static inline void skb_queue_tail(struct sk_buff_head *list,
+				   struct sk_buff *newsk)
+{
+	struct sk_buff *prev, *next;
+
+	newsk->list = list;
+	list->qlen++;
+	next = (struct sk_buff *)list;
+	prev = next->prev;
+	newsk->next = next;
+	newsk->prev = prev;
+	next->prev  = prev->next = newsk;
+}
+
 #endif // _SKBUFF_H_

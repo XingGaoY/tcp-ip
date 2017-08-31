@@ -6,6 +6,14 @@ struct proto udp_prot;
 
 struct hlist_head udp_hash[UDP_HTABLE_SIZE];
 
+static int udp_queue_rcv_skb(struct sock * sk, struct sk_buff *skb){
+  skb_queue_tail(sk->sk_receive_queue, skb);
+
+  // sk_data_ready is used to generate irq or semaphore to wake up reading function
+  // omit here, the app thread will read from skb queue
+  return 0;
+}
+
 struct sock *udp_sk_lookup(uint32_t saddr, uint16_t sport, uint32_t daddr, uint16_t dport){
   struct sock *sk, *result;
   struct hlist_node *node;
@@ -71,4 +79,15 @@ void udp_rcv(struct sk_buff *skb){
 
   /* UDP multicast is needed to be added */
   sk = udp_sk_lookup(saddr, sport, daddr, dport);
+
+  if(sk){
+    udp_queue_rcv_skb(sk, skb);
+    //sock_put(sk);
+    return;
+  }
+
+  kfree_skb(skb);
+
+  /* Some extra check to send icmp back maybe */
+    
 }
