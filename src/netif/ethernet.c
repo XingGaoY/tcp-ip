@@ -61,6 +61,7 @@ int ethernet_output(struct sk_buff *skb, const struct eth_addr *src, const struc
   skb->mac_header = skb->data;
 
   free(ethhdr);
+  ethhdr = NULL;
 
   /* pad to min ethernet frame length */
   if(skb->len < MIN_ETH_LEN){

@@ -103,6 +103,7 @@ etharp_raw(const struct eth_addr *ethsrc_addr, const struct eth_addr *ethdst_add
 
   skb_add_data(skb, hdr, SIZEOF_ETHARP_HDR);
   free(hdr);
+  hdr = NULL;
 
   ethernet_output(skb, ethsrc_addr, ethdst_addr, ETHTYPE_ARP);
 }
@@ -147,6 +148,7 @@ void etharp_input(struct sk_buff *skb){
   etharp_update_arp_entry(&sipaddr, &shwaddr);
 
   kfree_skb(skb);
+  skb = NULL;
 
   /* Now work on the message */
   switch(hdr->opcode){
