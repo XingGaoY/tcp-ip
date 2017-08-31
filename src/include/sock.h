@@ -3,6 +3,7 @@
 
 #include "def.h"
 #include "list.h"
+#include "socket.h"
 struct sk_buff_head;
 
 enum SK_SHUTDOWN{
@@ -24,11 +25,13 @@ enum SK_USERLOCKS{
   SOCK_BINDPORT_LOCK
 };
 
+
+
 struct sock_common{
   int skc_family;
   struct hlist_node skc_node;
 };
-
+struct proto;
 struct sock{
   struct sock_common __sk_common;
 #define sk_family __sk_common.skc_family
@@ -37,22 +40,13 @@ struct sock{
   //              sk_no_check:2,
   //              sk_userlocks:4;
   unsigned short sk_type;
-  struct proto prot;
+  struct proto *sk_prot;
   struct sk_buff_head *sk_receive_queue;
   struct sk_buff_head *sk_write_queue;
 };
 
-struct inet_sock{
-  struct sock sk;
-  uint32_t daddr;
-  uint16_t dport;
-  uint32_t saddr;
-  uint16_t sport;
-  uint16_t id;
-};
-
 struct proto {
-
+  int (*bind)(struct sock *sk, struct _sockaddr *uaddr, int addr_len);
 };
 
 #endif // _SOCK_H_

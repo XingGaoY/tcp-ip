@@ -36,6 +36,7 @@ int ethernet_input(struct sk_buff *skb){
       ip4_input(skb);
       break;
     default:
+      kfree_skb(skb);
       break;
   }
 

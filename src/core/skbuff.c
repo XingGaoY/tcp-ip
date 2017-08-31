@@ -55,6 +55,6 @@ struct sk_buff *alloc_skb(){
 }
 
 void kfree_skb(struct sk_buff *skb){
-  free(skb->data);
+  free(skb->head);
   free(skb);
 }

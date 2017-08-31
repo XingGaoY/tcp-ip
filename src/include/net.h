@@ -29,10 +29,10 @@ struct proto_ops{
 	int		family;
 	int		(*release)   (struct socket *sock);
 	int		(*bind)	     (struct socket *sock,
-				      struct sockaddr *myaddr,
+				      struct _sockaddr *myaddr,
 				      int sockaddr_len);
 	int		(*connect)   (struct socket *sock,
-				      struct sockaddr *vaddr,
+				      struct _sockaddr *vaddr,
 				      int sockaddr_len, int flags);
 	int		(*accept)    (struct socket *sock,
 				      struct socket *newsock, int flags);

@@ -1,10 +1,10 @@
 #ifndef _SOCKET_H_
 #define _SOCKET_H_
 
-#define sa_family_t int
+typedef int _sa_family_t;
 
-struct sockaddr {
-	sa_family_t	sa_family;	/* address family, AF_xxx	*/
+struct _sockaddr {
+	_sa_family_t	sa_family;	/* address family, AF_xxx	*/
 	char		sa_data[14];	/* 14 bytes of protocol address	*/
 };
 

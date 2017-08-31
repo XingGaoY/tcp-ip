@@ -41,6 +41,24 @@ struct ip_hdr{
 /* Macros to set struct ip_hdr fields: */
 #define IPH_VHL_SET(hdr, v, hl) (hdr)->_v_hl = (u8_t)((((v) << 4) | (hl)))
 
+#define sk_for_each(__sk, node, list) \
+	hlist_for_each_entry(__sk, node, list, sk_node)
+
+struct inet_opt {
+  uint32_t daddr;
+  uint16_t dport;
+  uint32_t saddr;
+  uint16_t sport;
+  uint16_t id;
+};
+
+struct inet_sock {
+  struct sock	  sk;
+  struct inet_opt inet;
+};
+
+#define inet_sk(__sk) (&((struct inet_sock *)__sk)->inet)
+
 /* Maintain the current ip datagram info */
 struct ip_globals{
   struct ip_hdr *current_ip4_header;

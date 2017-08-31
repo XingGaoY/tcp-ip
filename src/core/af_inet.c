@@ -1,7 +1,9 @@
 #include "inet_common.h"
-#include <stdlib.h>
+#include "sock.h"
+#include "proto.h"
+#include "udp.h"
 
-int inet_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len){
+int inet_bind(struct socket *sock, struct _sockaddr *uaddr, int addr_len){
   struct sock *sk = sock->sk;
 
   if(sk->sk_prot->bind)
@@ -29,4 +31,4 @@ static struct inet_protosw inetsw_array[] =
     .prot = &udp_prot,
     .ops = &inet_dgram_ops,
   }
-}
+};

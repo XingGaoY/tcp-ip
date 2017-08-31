@@ -61,7 +61,9 @@ void ip4_input(struct sk_buff *skb){
       icmp_input(skb);
       break;
     case IP_PROTO_UDP:
-      udp_input(skb);
+      udp_rcv(skb);
+      break;
+    default:
       break;
   }
 }
