@@ -19,7 +19,6 @@ struct ip_globals ip_data;
  */
 void ip4_input(struct sk_buff *skb){
   struct ip_hdr *iphdr;
-  struct ip_cb ipcb;
   uint16_t iphdr_hlen;
 
   iphdr = (struct ip_hdr*)skb->data;
@@ -41,8 +40,7 @@ void ip4_input(struct sk_buff *skb){
   fprintf(logout, "\tdst's ip = ");
   print_ip_addr(&iphdr->dest);
 
-  iphdr_hlen = IPH_HL(iphdr);
-  iphdr_hlen *= 4;
+  iphdr_hlen = IPH_HL(iphdr) * 4;
 
   /* Here comes some checks of header
      we only do the checksum check now */
@@ -54,11 +52,8 @@ void ip4_input(struct sk_buff *skb){
   ip_data.current_ip4_header = iphdr;
   ip_data.current_ip_header_tot_len = IPH_HL(iphdr) * 4;
 
-  ipcb = (struct ip_cb *)skb->cb;
-  ipcb->_id = IPH_ID(iphdr);
-  ipcb->_ttl = IPH_TTL(iphdr);
   skb->network_header = skb->data;
-  sk_pull(skb, iphdr_hlen);
+  skb_pull(skb, iphdr_hlen);
 
   /* Send to upper layers */
   switch(IPH_PROTO(iphdr)){
@@ -74,11 +69,29 @@ void ip4_input(struct sk_buff *skb){
 void ip4_output(struct sk_buff *skb, struct ip4_addr src, struct ip4_addr dst){
   struct ip_hdr *iphdr = (struct ip_hdr*)malloc(SIZEOF_IP4_HDR);
  
-  iphdr->_ttl = IPH_TTL(iphdr) - 1;
+  iphdr->_ttl = INIT_TTL;
   iphdr->src = src;
   iphdr->dest = dst;
 
   iphdr->_chksum = 0;
   iphdr->_chksum = checksum(iphdr, IPH_HL(iphdr)*4);
-  etharp_output(skb, &dst, (unsigned int)PP_HTONS(IPH_LEN(iphdr)));
+
+  free(skb);
+
+  etharp_output(skb, &dst);
+}
+
+void ip4_output_raw(struct sk_buff *skb, struct ip4_addr src, struct ip4_addr dst){
+  struct ip_hdr *iphdr = skb->network_header;
+
+  iphdr->_ttl = INIT_TTL;
+
+  iphdr->src = src;
+  iphdr->dest = dst;
+
+  iphdr->_chksum = 0;
+  iphdr->_chksum = checksum(iphdr, IPH_HL(iphdr)*4);
+
+  skb_push(skb, IPH_HL(iphdr) * 4);
+  etharp_output(skb, &dst);
 }

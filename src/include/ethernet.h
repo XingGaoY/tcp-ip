@@ -4,7 +4,7 @@
 #include "netif.h"
 #include "skbuff.h"
 
-#define SIZEOF_ETH_HDR 14
+#define SIZEOF_ETH_HDR sizeof(struct eth_hdr)
 #define MIN_ETH_LEN 60
 
 struct eth_hdr{
@@ -53,5 +53,6 @@ enum eth_type {
 
 int ethernet_input(struct sk_buff *skb);
 int ethernet_output(struct sk_buff *skb, const struct eth_addr *src, const struct eth_addr *dst, uint16_t eth_type);
+void ip4_output_raw(struct sk_buff *skb, struct ip4_addr src, struct ip4_addr dst);
 
 #endif //_ETHERNET_H_

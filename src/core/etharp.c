@@ -86,30 +86,28 @@ etharp_raw(const struct eth_addr *ethsrc_addr, const struct eth_addr *ethdst_add
            const uint16_t opcode){
   struct sk_buff *skb;
   struct etharp_hdr *hdr;
-  int len;
-  len = SIZEOF_ETH_HDR + SIZEOF_ETHARP_HDR;
-  char f[len];
 
   skb = alloc_skb();
   skb->data += MAX_ETHARP_HDR;
 
-  hdr = (struct etharp_hdr *)malloc(SIZEOF_ETHAPR_HDR);
-  hdr->opcode = PP_HTONS(opcode);
+  hdr = (struct etharp_hdr *)malloc(SIZEOF_ETHARP_HDR);
   hdr->hwtype = PP_HTONS(HWTYPE_ETHERNET);
   hdr->proto = PP_HTONS(ETHTYPE_IP);
   hdr->hwlen = ETH_HWADDR_LEN;
   hdr->protolen = sizeof(struct ip4_addr);
+  hdr->opcode = PP_HTONS(opcode);
   hdr->shwaddr = *hwsrc_addr;
   hdr->dhwaddr = *hwdst_addr;
   IPADDR2_COPY(&hdr->sipaddr, ipsrc_addr);
   IPADDR2_COPY(&hdr->dipaddr, ipdst_addr);
 
   skb_add_data(skb, hdr, SIZEOF_ETHARP_HDR);
+  free(hdr);
 
   ethernet_output(skb, ethsrc_addr, ethdst_addr, ETHTYPE_ARP);
 }
 
-void etharp_input(sk_buff *skb){
+void etharp_input(struct sk_buff *skb){
   struct etharp_hdr *hdr;
   struct ip4_addr sipaddr, dipaddr;
   struct eth_addr shwaddr;

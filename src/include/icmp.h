@@ -1,7 +1,7 @@
 #ifndef _ICMP_H_
 #define _ICMP_H_
 
-#include "sk_buff.h"
+#include "skbuff.h"
 
 #define ICMP_ER   0    /* echo reply */
 #define ICMP_ECHO 8    /* echo */
@@ -17,6 +17,6 @@ struct icmp_echo_hdr{
 };
 
 void icmp_input(struct sk_buff *skb);
-void icmp_er_output(struct sk_buff *skb, uint16_t id, uint16_t seqno);
+void icmp_er_output(struct sk_buff *skb);
 
 #endif // _ICMP_H_

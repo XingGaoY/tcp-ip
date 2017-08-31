@@ -9,7 +9,7 @@
  */
 void icmp_input(struct sk_buff *skb){
   struct icmp_echo_hdr *iecho = (struct icmp_echo_hdr *)skb->data;
-  struct ip_cb ipcb = &(struct ip_cb *)iecho->cb;
+  struct ip_hdr *ip = (struct ip_hdr *)skb->network_header;
 
   /* some check need to be done 
      but I just check the type */
@@ -28,21 +28,19 @@ void icmp_input(struct sk_buff *skb){
       /* If checksum not in consistence, drop the datagram silently */
       if(checksum(iecho, PP_HTONS(IPH_LEN(ip)) - 4 * IPH_HL(ip)) != 0)
         return;
-      icmp_output(skb, ICMP_ER);
+      icmp_er_output(skb);
       break;
     default:
       break;
   }
 }
 
-void icmp_er_output(struct sk_buff *skb, uint16_t id, uint16_t seqno){
-  struct sk_buff *skb_new = alloc_skb();
-  struct icmp_echo_hdr *iecho = malloc(SIZEOF_ICMPRE_HDR);
-
-  skb->data += MAX_IP_HDR;
+void icmp_er_output(struct sk_buff *skb){
+  struct icmp_echo_hdr *iecho = skb->data;
+  struct ip_hdr *ip = (struct ip_hdr *)skb->network_header;
      
   iecho->type = ICMP_ER;
   iecho->chksum = 0;
   iecho->chksum = checksum(iecho, PP_HTONS(IPH_LEN(ip)) - 4 * IPH_HL(ip));
-  ip4_output(p, ip->dest, ip->src);
+  ip4_output_raw(skb, ip->dest, ip->src);
 }

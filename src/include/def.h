@@ -13,6 +13,7 @@ extern FILE *logout;
 #define verbose
 #define ARP_TABLE_SIZE  10
 #define MAX_FRAME_LEN 100
+#define INIT_TTL 32
 /*-------------------------------*/
 
 #ifndef ETH_HWADDR_LEN

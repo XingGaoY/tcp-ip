@@ -2,6 +2,9 @@
 #define _UDP_H_
 
 #include "ip4_addr.h"
+#include "skbuff.h"
+
+#define SIZEOF_UDP_HDR 8
 
 struct udp_hdr{
   uint16_t src;
@@ -37,6 +40,6 @@ struct udp_pcb{
 /* the first pcb of the pcb list */
 extern struct udp_pcb *udp_pcbs;
 
-void udp_input(char *p);
+void udp_input(struct sk_buff *skb);
 
 #endif // _UDP_H_

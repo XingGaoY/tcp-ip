@@ -2,9 +2,9 @@
 #define _IP4_H_
 
 #include "ip4_addr.h"
-#include "sk_buff.h"
+#include "skbuff.h"
 
-#define SIZEOF_IP4_HDR 20 
+#define SIZEOF_IP4_HDR sizeof(struct ip_hdr)
 
 #define MAX_IP_HDR SIZEOF_ETH_HDR + SIZEOF_IP4_HDR
 
@@ -25,12 +25,6 @@ struct ip_hdr{
   uint16_t _chksum;
   struct ip4_addr src;
   struct ip4_addr dest;
-};
-
-/* Data in ip_hdr that need to be saved to send back */
-struct ip_cb{
-  uint16_t _id;
-  uint8_t _ttl;
 };
 
 /* Macros to get struct ip_hdr fields: */

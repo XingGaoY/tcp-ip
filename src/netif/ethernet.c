@@ -10,10 +10,9 @@ int ethernet_input(struct sk_buff *skb){
   //omit type check and specific prot
   //simply parse header now
   struct eth_hdr *ethhdr = (struct eth_hdr*)skb->data;
-  skb->mac_len = SIZEOF_ETH_HDR;
   skb->mac_header = skb->data;
 
-  skb_pull(skb, skb->mac_len);
+  skb_pull(skb, SIZEOF_ETH_HDR);
   uint16_t type;
   
   if(lwip_htons(ethhdr->type) != ETHTYPE_IPV6){		//eliminate some rubbish frame
@@ -60,6 +59,8 @@ int ethernet_output(struct sk_buff *skb, const struct eth_addr *src, const struc
 
   skb_add_hdr(skb, ethhdr, SIZEOF_ETH_HDR);
   skb->mac_header = skb->data;
+
+  free(ethhdr);
 
   /* pad to min ethernet frame length */
   if(skb->len < MIN_ETH_LEN){

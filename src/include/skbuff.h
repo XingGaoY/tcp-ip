@@ -10,7 +10,7 @@ struct sk_buff{
 
   struct sock *sk;
 
-  void *tranport_header;
+  void *transport_header;
   void *network_header;
   void *mac_header;
 

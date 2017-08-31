@@ -7,7 +7,7 @@
 #include "netif.h"
 #include "skbuff.h"
 
-#define SIZEOF_ETHARP_HDR 28
+#define SIZEOF_ETHARP_HDR sizeof(struct etharp_hdr)
 #define MAX_ETHARP_HDR SIZEOF_ETHARP_HDR+SIZEOF_ETH_HDR
 
 struct etharp_hdr{

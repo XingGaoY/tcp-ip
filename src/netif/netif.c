@@ -2,6 +2,8 @@
 #include "tun.h"
 #include "ethernet.h"
 #include "dev_setup.h"
+#include "util.h"
+#include "skbuff.h"
 
 struct netif *netif;
 
@@ -33,28 +35,35 @@ void netdev_init(){
 }
 
 void netdev_listen(){
+  // No method to destroy skbuff now, remember to destroy it
   char *buf = (char*)malloc(MAX_FRAME_LEN);
+
   while(1){
+    struct sk_buff *skb = alloc_skb();
     memset(buf, 0, MAX_FRAME_LEN);
-    read(netif->net_fd, buf, 128);
-    /*fprintf(logout, "=====\nEthernet frame:\n");
-    for(int i=0; i<128; i++){
-      if(i%8 == 0) printf("\n");
+    read(netif->net_fd, buf, MAX_FRAME_LEN);
+
+    skb_add_data(skb, buf, MAX_FRAME_LEN); 
+
+    fprintf(logout, "=====\nEthernet frame:\n");
+    for(int i=0; i<100; i++){
+      if(i%8 == 0) fprintf(logout, "\n");
       fprintf(logout, "%02x", (unsigned char)buf[i]);
     }
     fprintf(logout, "\n=====\n");
-    */
-    ethernet_input(buf);
+    
+    ethernet_input(skb);
   }
 }
 
 void netdev_xmit(struct sk_buff *skb){
-  /*printf("=====\nEthernet frame sent:\n");
-  for(int i=0; i<len; i++){
-    if(i%8 == 0) printf("\n");
-    printf("%02x", (unsigned char)buf[i]);
+  fprintf(logout, "=====\nEthernet frame sent:\n");
+  char *buf = (char *)skb->data;
+  for(int i=0; i<100; i++){
+    if(i%8 == 0) fprintf(logout, "\n");
+    fprintf(logout, "%02x", (unsigned char)buf[i]);
   }
-  printf("\n=====\n");*/
+  fprintf(logout, "\n=====\n");
 
   tun_write(skb->data, skb->len);
 }
