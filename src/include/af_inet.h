@@ -1,6 +1,10 @@
-#ifndef _PROTO_H_
-#define _PROTO_H_
+#ifndef _AF_INET_H_
+#define _AF_INET_H_
 
+// As no other network family, I moved it out to make it simple
+#include "inet_common.h"
+#include "sock.h"
+#include "udp.h"
 #include "net.h"
 
 enum {
@@ -23,4 +27,5 @@ struct inet_protosw {
 	struct proto_ops *ops;
 };
 
-#endif // _PROTO_H_
+int inet_init(void);
+#endif // _AF_INET_H_

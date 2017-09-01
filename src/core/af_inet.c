@@ -1,7 +1,4 @@
-#include "inet_common.h"
-#include "sock.h"
-#include "proto.h"
-#include "udp.h"
+#include "af_inet.h"
 
 int inet_bind(struct socket *sock, struct __sockaddr *uaddr, int addr_len){
   struct sock *sk = sock->sk;
@@ -53,8 +50,10 @@ static struct inet_protosw inetsw_array[] =
   }
 };
 
-static int inet_init(void){
+int inet_init(void){
   struct inet_protosw *q;
 
   udp_init();
+
+  return 1;
 }

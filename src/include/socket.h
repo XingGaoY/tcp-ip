@@ -1,7 +1,7 @@
 #ifndef _SOCKET_H_
 #define _SOCKET_H_
 
-#include "net.h"
+#include "def.h"
 
 /**
  * No file system is used, and as one connection matches only one socket
@@ -16,7 +16,8 @@ struct __sockaddr {
   unsigned short int  	port;
 };
 
-int raw_socket(int domain, int type, int protocol);
+// All sockets are AF_INET, so rm domain field
+int raw_socket(int type, int protocol);
 int raw_bind();
 
 #endif // _SOCKET_H_

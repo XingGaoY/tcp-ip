@@ -1,7 +1,7 @@
 #include <unistd.h>
 #include "netif.h"
 #include "util.h"
-#include "net.h"
+#include "af_inet.h"
 #include <pthread.h>
 
 struct op{

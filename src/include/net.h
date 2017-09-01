@@ -47,6 +47,4 @@ struct proto_ops{
 	//			      int flags);
 };
 
-static int inet_init(void);
-
 #endif // _NET_H_

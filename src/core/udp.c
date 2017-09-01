@@ -98,7 +98,7 @@ void udp_rcv(struct sk_buff *skb){
 
 void udp_init(){
   for(int i = 0; i < UDP_HTABLE_SIZE; i++)
-    INIT_LIST_HEAD(&udp_hash[i]);
+    INIT_HLIST_HEAD(&udp_hash[i]);
 }
 
 struct proto udp_prot = {
