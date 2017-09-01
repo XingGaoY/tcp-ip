@@ -40,8 +40,12 @@ struct proto_ops inet_dgram_ops = {
   //.recvmsg = NULL
 };
 
-static struct inet_protosw inetsw_array[] =
+struct inet_protosw inetsw_array[] =
 {
+  {
+    .type = _SOCK_STREAM,
+    .protocol = IPPROTO_TCP,
+  },
   {
     .type = _SOCK_DGRAM,
     .protocol = IPPROTO_UDP,
@@ -49,6 +53,26 @@ static struct inet_protosw inetsw_array[] =
     .ops = &inet_dgram_ops,
   }
 };
+
+int inet_create(struct socket *sock){
+  struct sock *sk = sk_alloc();
+  struct inet_protosw *proto = &inetsw_array[sock->type];
+  struct inet_opt *inet;
+
+  sock->state = SS_UNCONNECTED;
+
+  // need to check if it is the right proto
+  sock->ops = proto->ops;
+  sk->sk_prot = proto->prot;
+
+  inet = inet_sk(sk);
+  inet->id = 0;
+
+  skb_queue_head_init(sk->sk_receive_queue);
+  skb_queue_head_init(sk->sk_write_queue);
+
+  return 1;
+}
 
 int inet_init(void){
   struct inet_protosw *q;

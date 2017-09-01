@@ -40,6 +40,7 @@ void *skb_add_data(struct sk_buff *skb, void *data, int len);
 struct sk_buff *alloc_skb();
 void kfree_skb(struct sk_buff *skb);
 
+void skb_queue_head_init(struct sk_buff_head *list);
 
 //TODO The lock for the list may be needed
 static inline void skb_queue_tail(struct sk_buff_head *list,

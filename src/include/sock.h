@@ -5,6 +5,7 @@
 #include "list.h"
 #include "socket.h"
 struct sk_buff_head;
+struct socket;
 
 enum SK_SHUTDOWN{
   RCV_SHUTDOWN = 0,
@@ -26,7 +27,6 @@ enum SK_USERLOCKS{
 };
 
 struct sock_common{
-  int skc_family;
   struct hlist_node skc_node;
 };
 
@@ -34,7 +34,6 @@ struct proto;
 
 struct sock{
   struct sock_common __sk_common;
-#define sk_family __sk_common.skc_family
 #define sk_node __sk_common.skc_node
   //unsigned char sk_shutdown:2,
   //              sk_no_check:2,
@@ -50,5 +49,7 @@ struct proto {
   int (*bind)(struct sock *sk, struct __sockaddr *uaddr, int addr_len);
   int (*get_port)(struct sock *sk, unsigned short sport);
 };
+
+struct sock *sk_alloc();
 
 #endif // _SOCK_H_

@@ -1,7 +1,15 @@
 #ifndef _SOCKET_H_
 #define _SOCKET_H_
 
-#include "def.h"
+#include <stdint.h>
+
+#define _SOCK_STREAM 0
+#define _SOCK_DGRAM  1
+#define _SOCK_RAW    2
+
+#define PF_INET 0
+
+#define AF_INET 0
 
 /**
  * No file system is used, and as one connection matches only one socket
@@ -17,7 +25,7 @@ struct __sockaddr {
 };
 
 // All sockets are AF_INET, so rm domain field
-int raw_socket(int type, int protocol);
+int raw_socket(int type);
 int raw_bind();
 
 #endif // _SOCKET_H_

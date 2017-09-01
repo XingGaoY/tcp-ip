@@ -1,11 +1,12 @@
 #include "socket.h"
 #include "net.h"
+#include "af_inet.h"
 
 #define SIZEOF_SOCK_LIST 10
 
 static struct socket *sock_list[SIZEOF_SOCK_LIST];
 
-int sock_create(int type, int protocol, struct socket **res){
+int sock_create(int type, struct socket **res){
   struct socket *sock;
   int sock_fd;
 
@@ -28,16 +29,16 @@ int sock_create(int type, int protocol, struct socket **res){
   }
 
   sock->type = type;
-  // And then a rcu is used to find the proto registered
+  inet_create(sock);
 
   return sock_fd;
 }
 
-int raw_socket(int type, int protocol){
+int raw_socket(int type){
   int retval;
   struct socket *sock;
   
-  if((retval = sock_create(type, protocol, &sock)) != -1){
+  if((retval = sock_create(type, &sock)) != -1){
 
   }
 

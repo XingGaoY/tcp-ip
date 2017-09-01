@@ -1,15 +1,8 @@
 #ifndef _NET_H_
 #define _NET_H_
 
-#define _SOCK_STREAM 0
-#define _SOCK_DGRAM  1
-#define _SOCK_RAW    2
-
-#define PF_INET 0
-
-#define AF_INET 0
-
-#include "socket.h"
+#include "sock.h"
+#include "ip4.h"
 
 enum socket_state{
   SS_FREE = 0,			/* not allocated		*/
@@ -24,7 +17,8 @@ struct socket{
   const struct proto_ops  *ops;
 
   struct sock *sk;
-  short type;
+  struct inet_opt inet;
+  unsigned short type;
 };
 
 struct proto_ops{
