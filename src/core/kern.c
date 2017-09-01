@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include "netif.h"
 #include "util.h"
+#include "net.h"
 #include <pthread.h>
 
 struct op{
@@ -35,6 +36,7 @@ int main(int argc, char** argv){
   pthread_create(&USR_APP_THREAD, NULL, (void*)userapp, &arg);
 
   netdev_init();
+  inet_init();
 
   netdev_listen();
 }

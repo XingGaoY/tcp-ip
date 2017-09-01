@@ -4,11 +4,11 @@
 #include "net.h"
 
 enum {
-  IPPROTO_IP = 0,		/* Dummy protocol for TCP		*/
-  IPPROTO_ICMP = 1,		/* Internet Control Message Protocol	*/
-  IPPROTO_IGMP = 2,		/* Internet Group Management Protocol	*/
-  IPPROTO_TCP = 6,		/* Transmission Control Protocol	*/
-  IPPROTO_UDP = 17,		/* User Datagram Protocol		*/
+  IPPROTO_UDP = 0,		/* User Datagram Protocol		*/
+  IPPROTO_TCP,	        	/* Transmission Control Protocol	*/
+  IPPROTO_IP,	        	/* Dummy protocol for TCP		*/
+  IPPROTO_ICMP, 		/* Internet Control Message Protocol	*/
+  IPPROTO_IGMP,  		/* Internet Group Management Protocol	*/
   IPPROTO_RAW	 = 255,		/* Raw IP packets			*/
   IPPROTO_MAX
 };

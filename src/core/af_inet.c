@@ -52,3 +52,9 @@ static struct inet_protosw inetsw_array[] =
     .ops = &inet_dgram_ops,
   }
 };
+
+static int inet_init(void){
+  struct inet_protosw *q;
+
+  udp_init();
+}

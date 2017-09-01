@@ -96,6 +96,11 @@ void udp_rcv(struct sk_buff *skb){
     
 }
 
+void udp_init(){
+  for(int i = 0; i < UDP_HTABLE_SIZE; i++)
+    INIT_LIST_HEAD(&udp_hash[i]);
+}
+
 struct proto udp_prot = {
   .name =      "UDP",
   .get_port =	udp_v4_get_port,

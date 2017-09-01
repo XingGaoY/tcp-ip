@@ -7,6 +7,8 @@
 
 #define PF_INET 0
 
+#define AF_INET 0
+
 #include "socket.h"
 
 enum socket_state{
@@ -44,5 +46,7 @@ struct proto_ops{
 	//			      struct msghdr *m, int total_len,
 	//			      int flags);
 };
+
+static int inet_init(void);
 
 #endif // _NET_H_
