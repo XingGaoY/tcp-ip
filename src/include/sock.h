@@ -25,13 +25,13 @@ enum SK_USERLOCKS{
   SOCK_BINDPORT_LOCK
 };
 
-
-
 struct sock_common{
   int skc_family;
   struct hlist_node skc_node;
 };
+
 struct proto;
+
 struct sock{
   struct sock_common __sk_common;
 #define sk_family __sk_common.skc_family
@@ -46,7 +46,9 @@ struct sock{
 };
 
 struct proto {
-  int (*bind)(struct sock *sk, struct _sockaddr *uaddr, int addr_len);
+  char name[10];
+  int (*bind)(struct sock *sk, struct __sockaddr *uaddr, int addr_len);
+  int (*get_port)(struct sock *sk, unsigned short sport);
 };
 
 #endif // _SOCK_H_

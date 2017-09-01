@@ -51,6 +51,10 @@ struct sock *udp_sk_lookup(uint32_t saddr, uint16_t sport, uint32_t daddr, uint1
   return result;
 }
 
+static int udp_v4_get_port(struct sock *sk, unsigned short snum){
+  return 1;
+}
+
 void udp_rcv(struct sk_buff *skb){
   struct udp_hdr *udphdr;
   struct ip_hdr *iphdr;
@@ -91,3 +95,8 @@ void udp_rcv(struct sk_buff *skb){
   /* Some extra check to send icmp back maybe */
     
 }
+
+struct proto udp_prot = {
+  .name =      "UDP",
+  .get_port =	udp_v4_get_port,
+};

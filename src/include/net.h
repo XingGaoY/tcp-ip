@@ -1,9 +1,9 @@
 #ifndef _NET_H_
 #define _NET_H_
 
-#define SOCK_STREAM 0
-#define SOCK_DGRAM  1
-#define SOCK_RAW    2
+#define _SOCK_STREAM 0
+#define _SOCK_DGRAM  1
+#define _SOCK_RAW    2
 
 #define PF_INET 0
 
@@ -29,10 +29,10 @@ struct proto_ops{
 	int		family;
 	int		(*release)   (struct socket *sock);
 	int		(*bind)	     (struct socket *sock,
-				      struct _sockaddr *myaddr,
+				      struct __sockaddr *myaddr,
 				      int sockaddr_len);
 	int		(*connect)   (struct socket *sock,
-				      struct _sockaddr *vaddr,
+				      struct __sockaddr *vaddr,
 				      int sockaddr_len, int flags);
 	int		(*accept)    (struct socket *sock,
 				      struct socket *newsock, int flags);
