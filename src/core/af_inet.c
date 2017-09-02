@@ -31,7 +31,6 @@ int inet_recvmsg(struct socket *sock, void *buf, int len){
 }
 
 struct proto_ops inet_dgram_ops = {
-  .family = PF_INET,
   .release = NULL,
   .bind = inet_bind,
   .connect = NULL,
@@ -57,21 +56,26 @@ struct inet_protosw inetsw_array[] =
 };
 
 int inet_create(struct socket *sock){
-  struct sock *sk = sk_alloc();
+  struct sock *sk;
   struct inet_protosw *proto = &inetsw_array[sock->type];
   struct inet_opt *inet;
 
   sock->state = SS_UNCONNECTED;
+  sock->ops = proto->ops;
+  sk = (struct sock *)proto->prot->sk_alloc();
 
   // need to check if it is the right proto
-  sock->ops = proto->ops;
-  sk->sk_prot = proto->prot;
+
+  sock->sk->sk_prot = proto->prot;
 
   inet = inet_sk(sk);
-  inet->id = 0;
+  
+  memset(inet, 0, sizeof(struct inet_opt));
 
   skb_queue_head_init(sk->sk_receive_queue);
   skb_queue_head_init(sk->sk_write_queue);
+
+  sock->sk = sk;
 
   return 1;
 }

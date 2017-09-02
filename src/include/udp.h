@@ -23,7 +23,6 @@ struct udp_hdr{
 /* the UDP protocol control block */
 struct udp_sock{
   struct inet_sock inet;
-  unsigned int corkflag;	// whether pending the dgram to 64Kb before sending
 };
 
 /* the first pcb of the pcb list */

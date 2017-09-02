@@ -7,10 +7,6 @@
 #define _SOCK_DGRAM  1
 #define _SOCK_RAW    2
 
-#define PF_INET 0
-
-#define AF_INET 0
-
 /**
  * No file system is used, and as one connection matches only one socket
  * So I simply create an array to hold the read and write msg circular queue

@@ -3,6 +3,7 @@
 #include "util.h"
 #include "af_inet.h"
 #include <pthread.h>
+#include "socket.h"
 
 struct op{
   int argc;
@@ -37,6 +38,8 @@ int main(int argc, char** argv){
 
   netdev_init();
   inet_init();
+
+  raw_socket(_SOCK_DGRAM);
 
   netdev_listen();
 }

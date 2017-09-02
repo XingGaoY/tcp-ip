@@ -2,9 +2,13 @@
 #include "def.h"
 #include "ip4.h"
 
-struct proto udp_prot;
-
 struct hlist_head udp_hash[UDP_HTABLE_SIZE];
+
+struct sock *udp_sk_alloc(){
+  struct udp_sock *udp_sk = (struct udp_sock *)malloc(sizeof(struct udp_sock));
+
+  return &udp_sk->inet.sk;
+}
 
 static int udp_queue_rcv_skb(struct sock * sk, struct sk_buff *skb){
   skb_queue_tail(sk->sk_receive_queue, skb);
@@ -124,6 +128,7 @@ void udp_init(){
 
 struct proto udp_prot = {
   .name     =   "UDP",
+  .sk_alloc =   udp_sk_alloc,
   .recvmsg  =   udp_recvmsg,
   .get_port =	udp_v4_get_port,
 };

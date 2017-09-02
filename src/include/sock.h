@@ -46,11 +46,10 @@ struct sock{
 
 struct proto {
   char name[10];
+  struct sock *(*sk_alloc)();
   int (*bind)(struct sock *sk, struct __sockaddr *uaddr, int addr_len);
   int (*recvmsg)(struct sock *sk, void *buf, int len);
   int (*get_port)(struct sock *sk, unsigned short sport);
 };
-
-struct sock *sk_alloc();
 
 #endif // _SOCK_H_

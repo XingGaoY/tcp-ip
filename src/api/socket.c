@@ -6,7 +6,8 @@
 
 static struct socket *sock_list[SIZEOF_SOCK_LIST];
 
-int sock_create(int type, struct socket **res){
+/* sockfd is simplified as the index of socket array */
+int sock_create(int type){
   struct socket *sock;
   int sock_fd;
 
@@ -17,7 +18,7 @@ int sock_create(int type, struct socket **res){
   sock = (struct socket *)malloc(sizeof(struct socket));
 
   for(sock_fd = 0; sock_fd < SIZEOF_SOCK_LIST; sock_fd++){
-    if(sock_list[sock_fd]){
+    if(!sock_list[sock_fd]){
       sock_list[sock_fd] = sock;
       break;
     }
@@ -29,18 +30,21 @@ int sock_create(int type, struct socket **res){
   }
 
   sock->type = type;
+  // create the relevant sock, further initialize socket and sock
   inet_create(sock);
 
   return sock_fd;
 }
 
+/** raw_socket -- create a socket and return its sock_fd
+ * @type: the net connet type(dgram or stream)
+ */
 int raw_socket(int type){
-  int retval;
-  struct socket *sock;
+  int sock_fd;
   
-  retval = sock_create(type, &sock);
+  sock_fd = sock_create(type);
 
-  return retval;
+  return sock_fd;
 }
 
 int raw_bind(int sock_fd, struct __sockaddr *addr){

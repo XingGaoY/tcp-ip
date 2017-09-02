@@ -17,12 +17,10 @@ struct socket{
   const struct proto_ops  *ops;
 
   struct sock *sk;
-  struct inet_opt inet;
   unsigned short type;
 };
 
 struct proto_ops{
-	int		family;
 	int		(*release)   (struct socket *sock);
 	int		(*bind)	     (struct socket *sock,
 				      struct __sockaddr *uaddr);
