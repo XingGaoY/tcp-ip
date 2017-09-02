@@ -38,9 +38,7 @@ int raw_socket(int type){
   int retval;
   struct socket *sock;
   
-  if((retval = sock_create(type, &sock)) != -1){
-
-  }
+  retval = sock_create(type, &sock);
 
   return retval;
 }
