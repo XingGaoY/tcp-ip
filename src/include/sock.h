@@ -27,7 +27,7 @@ enum SK_USERLOCKS{
 };
 
 struct sock_common{
-  struct hlist_node skc_node;
+  struct hlist_node skc_node;		// the node in sk hash list
 };
 
 struct proto;

@@ -39,7 +39,10 @@ int main(int argc, char** argv){
   netdev_init();
   inet_init();
 
-  raw_socket(_SOCK_DGRAM);
+  struct __sockaddr addr;
+  addr.port = 1800;
+  int sockfd = raw_socket(_SOCK_DGRAM);
+  raw_bind(sockfd, &addr);
 
   netdev_listen();
 }

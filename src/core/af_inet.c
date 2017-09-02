@@ -66,7 +66,7 @@ int inet_create(struct socket *sock){
 
   // need to check if it is the right proto
 
-  sock->sk->sk_prot = proto->prot;
+  sk->sk_prot = proto->prot;
 
   inet = inet_sk(sk);
   

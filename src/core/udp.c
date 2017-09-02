@@ -6,8 +6,12 @@ struct hlist_head udp_hash[UDP_HTABLE_SIZE];
 
 struct sock *udp_sk_alloc(){
   struct udp_sock *udp_sk = (struct udp_sock *)malloc(sizeof(struct udp_sock));
+  struct sock *sk = &udp_sk->inet.sk;
 
-  return &udp_sk->inet.sk;
+  sk->sk_receive_queue = (struct sk_buff_head *)malloc(sizeof(struct sk_buff_head));
+  sk->sk_write_queue = (struct sk_buff_head *)malloc(sizeof(struct sk_buff_head));
+
+  return sk;
 }
 
 static int udp_queue_rcv_skb(struct sock * sk, struct sk_buff *skb){
@@ -56,7 +60,27 @@ struct sock *udp_sk_lookup(uint32_t saddr, uint16_t sport, uint32_t daddr, uint1
 }
 
 static int udp_v4_get_port(struct sock *sk, unsigned short snum){
+  struct hlist_head *head;
+  struct hlist_node *node;
+  struct sock *sk2;
+
+  if(snum == 0){
+  // If snum is not specified, we generate one
+  }
+  else{
+    head = &udp_hash[snum &(UDP_HTABLE_SIZE - 1)];
+    //we simply suppose that the sock will be removed after proc shut it down
+    //so the only confliction is the snum with same mod
+    sk_for_each(sk2, node, head)
+      if(inet_sk(sk2)->sport == snum)
+        goto fail;
+  }
+  head = &udp_hash[snum & (UDP_HTABLE_SIZE - 1)];
+  hlist_add_head(&sk->sk_node, head);
+  
   return 1;
+fail:
+  return -1;
 }
 
 void udp_rcv(struct sk_buff *skb){
