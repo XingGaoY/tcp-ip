@@ -48,3 +48,15 @@ int raw_socket(int type){
 int raw_bind(){
   return 1;
 }
+
+
+// No _from now, just a copy of src ip & port
+int raw_recv(int sock_fd, void *buf, int len){
+  struct socket *sock;
+  int retval = 0;
+  
+  if((sock = sock_list[sock_fd]) != NULL){
+    sock->ops->recvmsg(sock, buf, len);
+  }
+  return retval;
+}

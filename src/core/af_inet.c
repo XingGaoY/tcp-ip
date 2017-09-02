@@ -28,6 +28,11 @@ int inet_bind(struct socket *sock, struct __sockaddr *uaddr, int addr_len){
   return 1;
 }
 
+int inet_recvmsg(struct socket *sock, void *buf, int len){
+  struct sock *sk = sock->sk;
+  return sk->sk_prot->recvmsg(sk, buf, len);
+}
+
 struct proto_ops inet_dgram_ops = {
   .family = PF_INET,
   .release = NULL,
@@ -35,9 +40,9 @@ struct proto_ops inet_dgram_ops = {
   .connect = NULL,
   .accept = NULL,
   .listen = NULL,
-  .shutdown = NULL
-  //.sendmsg = NULL,
-  //.recvmsg = NULL
+  .shutdown = NULL,
+  .sendmsg = NULL,
+  .recvmsg = inet_recvmsg
 };
 
 struct inet_protosw inetsw_array[] =
@@ -75,7 +80,6 @@ int inet_create(struct socket *sock){
 }
 
 int inet_init(void){
-  struct inet_protosw *q;
 
   udp_init();
 

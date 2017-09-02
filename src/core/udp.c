@@ -96,12 +96,34 @@ void udp_rcv(struct sk_buff *skb){
     
 }
 
+int udp_recvmsg(struct sock *sk, void *buf, int len){
+  struct sk_buff *skb = NULL;
+  int copied;
+
+  // Block if no data rcved in skb
+  while(!skb)
+    skb = skb_recv_datagram(sk);
+
+  // the data larger then len will be dropped simply
+  copied = skb->len;
+  if(copied > len)
+    copied = len;
+  // no net addr will be copied as we do not allow different ip and port in both side
+
+  memcpy(buf, skb->data, copied);
+  kfree_skb(skb);
+  skb = NULL;
+
+  return copied;
+}
+
 void udp_init(){
   for(int i = 0; i < UDP_HTABLE_SIZE; i++)
     INIT_HLIST_HEAD(&udp_hash[i]);
 }
 
 struct proto udp_prot = {
-  .name =      "UDP",
+  .name     =   "UDP",
+  .recvmsg  =   udp_recvmsg,
   .get_port =	udp_v4_get_port,
 };

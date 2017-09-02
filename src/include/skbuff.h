@@ -10,6 +10,7 @@ struct sk_buff{
   struct sk_buff *prev;
 
   struct sk_buff_head *list;
+
   struct sock *sk;
 
   void *transport_header;
@@ -41,6 +42,37 @@ struct sk_buff *alloc_skb();
 void kfree_skb(struct sk_buff *skb);
 
 void skb_queue_head_init(struct sk_buff_head *list);
+
+struct sk_buff *skb_recv_datagram(struct sock *sk);
+
+static inline struct sk_buff *skb_queue_front(struct sk_buff_head *list){
+  struct sk_buff *next, *prev, *result;
+  prev = (struct sk_buff *)list;
+  next = prev->next;
+  result = NULL;
+  if(next != prev)
+    result = next;
+  return result;
+}
+
+static inline struct sk_buff *skb_dequeue(struct sk_buff_head *list)
+{
+	struct sk_buff *next, *prev, *result;
+
+	prev = (struct sk_buff *) list;
+	next = prev->next;
+	result = NULL;
+	if (next != prev) {
+		result	     = next;
+		next	     = next->next;
+		list->qlen--;
+		next->prev   = prev;
+		prev->next   = next;
+		result->next = result->prev = NULL;
+		result->list = NULL;
+	}
+	return result;
+}
 
 //TODO The lock for the list may be needed
 static inline void skb_queue_tail(struct sk_buff_head *list,

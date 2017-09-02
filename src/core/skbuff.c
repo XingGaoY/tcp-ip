@@ -54,6 +54,15 @@ struct sk_buff *alloc_skb(){
   return skb;
 }
 
+struct sk_buff *skb_recv_datagram(struct sock *sk){
+  struct sk_buff *skb;
+
+  // a loop is used for time check or block
+  // maybe used in tcp
+
+  return skb = skb_dequeue(sk->sk_receive_queue);
+}
+
 void kfree_skb(struct sk_buff *skb){
   free(skb->head);
   free(skb);
