@@ -45,7 +45,11 @@ int raw_socket(int type){
   return retval;
 }
 
-int raw_bind(){
+int raw_bind(int sock_fd, struct __sockaddr *addr){
+  struct socket *sock;
+  if((sock = sock_list[sock_fd]) != NULL){
+    sock->ops->bind(sock, addr);
+  }
   return 1;
 }
 

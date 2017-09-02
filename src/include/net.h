@@ -25,8 +25,7 @@ struct proto_ops{
 	int		family;
 	int		(*release)   (struct socket *sock);
 	int		(*bind)	     (struct socket *sock,
-				      struct __sockaddr *myaddr,
-				      int sockaddr_len);
+				      struct __sockaddr *uaddr);
 	int		(*connect)   (struct socket *sock,
 				      struct __sockaddr *vaddr,
 				      int sockaddr_len, int flags);

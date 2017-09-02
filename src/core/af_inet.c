@@ -1,12 +1,9 @@
 #include "af_inet.h"
 
-int inet_bind(struct socket *sock, struct __sockaddr *uaddr, int addr_len){
+int inet_bind(struct socket *sock, struct __sockaddr *uaddr){
   struct sock *sk = sock->sk;
   struct inet_opt *inet = inet_sk(sk);
   unsigned short sport;
-
-  if(sk->sk_prot->bind)
-    sk->sk_prot->bind(sk, uaddr, addr_len);
 
   // Check uaddr is needed(port&ipaddr)
 

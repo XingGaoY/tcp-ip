@@ -26,7 +26,7 @@ struct __sockaddr {
 
 // All sockets are AF_INET, so rm domain field
 int raw_socket(int type);
-int raw_bind();
+int raw_bind(int sock_fd, struct __sockaddr *addr);
 int raw_recv(int sock_fd, void *buf, int len);
 
 #endif // _SOCKET_H_
