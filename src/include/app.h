@@ -3,14 +3,9 @@
 
 #include "socket.h"
 
-typedef struct op{
-  int argc;
-  char **argv;
-}op_t;
+void userapp();
 
-void userapp(op_t *a);
-
-void THREAD_APP();
+void THREAD_APP(int argc, char **argv);
 
 void udp_server();
 

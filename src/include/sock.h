@@ -4,6 +4,7 @@
 #include "def.h"
 #include "list.h"
 #include "socket.h"
+
 struct sk_buff_head;
 struct socket;
 

@@ -78,7 +78,7 @@ static int udp_v4_get_port(struct sock *sk, unsigned short snum){
   head = &udp_hash[snum & (UDP_HTABLE_SIZE - 1)];
   hlist_add_head(&sk->sk_node, head);
   
-  return 1;
+  return 0;
 fail:
   return -1;
 }

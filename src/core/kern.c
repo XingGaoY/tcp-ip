@@ -15,12 +15,10 @@ int main(int argc, char** argv){
   logout = fopen("log", "w+");
   setbuf(logout, NULL);
 
-  op_t arg = {argc, argv};
-
   netdev_init();
   inet_init();
   
-  THREAD_APP(arg);
+  THREAD_APP(argc, argv);
 
   netdev_listen();
 }

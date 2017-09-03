@@ -6,10 +6,17 @@
 int 	udp     = 0;
 int	server  = 0;
 
-void userapp(op_t *a){
+void userapp(){
+  if(udp && server){
+    udp_server();
+  }
+}
+
+void THREAD_APP(int argc, char **argv){
+  pthread_t app_thread;
   char c;
 
-  while ( (c = getopt(a->argc, a->argv, "us")) != EOF) {
+  while ( (c = getopt(argc, argv, "us")) != EOF) {
     switch (c) {
       case 'u':
         udp = 1;
@@ -22,13 +29,6 @@ void userapp(op_t *a){
         break;
     }
   }
-  if(udp && server){
-    udp_server();
-  }
-}
 
-void THREAD_APP(op_t arg){
-  pthread_t app_thread;
-
-  pthread_create(&app_thread, NULL, (void*)userapp, &arg);
+  pthread_create(&app_thread, NULL, (void*)userapp, NULL);
 }
