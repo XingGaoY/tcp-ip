@@ -32,9 +32,9 @@ struct sk_buff_head{
   // a lock is ignored as it is unithread now
 };
 
+void skb_reserve(struct sk_buff *skb, int len);
 void *skb_push(struct sk_buff *skb, int len);
 void *skb_pull(struct sk_buff *skb, int len);
-void *skb_add_hdr(struct sk_buff *skb, void *hdr, int len);
 void *skb_add_data(struct sk_buff *skb, void *data, int len);
 
 /* I do not permit data frame with varied length, so no size parameter now */

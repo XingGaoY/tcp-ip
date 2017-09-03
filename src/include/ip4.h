@@ -3,6 +3,7 @@
 
 #include "ip4_addr.h"
 #include "skbuff.h"
+#include "ethernet.h"
 
 #define SIZEOF_IP4_HDR sizeof(struct ip_hdr)
 
@@ -39,7 +40,7 @@ struct ip_hdr{
 #define IPH_CHKSUM(hdr) ((hdr)->_chksum)
 
 /* Macros to set struct ip_hdr fields: */
-#define IPH_VHL_SET(hdr, v, hl) (hdr)->_v_hl = (u8_t)((((v) << 4) | (hl)))
+#define IPH_VHL_SET(hdr, v, hl) (hdr)->_v_hl = (uint8_t)((((v) << 4) | (hl)))
 
 #define sk_for_each(__sk, node, list) \
 	hlist_for_each_entry(__sk, node, list, sk_node)
@@ -50,6 +51,7 @@ struct inet_opt {
   uint32_t saddr;
   uint16_t sport;
   uint16_t id;
+  uint8_t ttl;
 };
 
 struct inet_sock {
@@ -59,16 +61,7 @@ struct inet_sock {
 
 #define inet_sk(__sk) (&((struct inet_sock *)__sk)->inet)
 
-/* Maintain the current ip datagram info */
-struct ip_globals{
-  struct ip_hdr *current_ip4_header;
-  uint16_t current_ip_header_tot_len;
-  struct ip4_addr current_iphdr_src;
-  struct ip4_addr current_iphdr_dest;
-};
-extern struct ip_globals ip_data;
-
 void ip4_input(struct sk_buff *skb);
-void ip4_output(struct sk_buff *skb, struct ip4_addr src, struct ip4_addr dest);
+int ip_output_if_src(struct sk_buff *skb);
 
 #endif // _IP4_H_

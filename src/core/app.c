@@ -10,6 +10,9 @@ void userapp(){
   if(udp && server){
     udp_server();
   }
+  else if(udp && !server){
+    udp_client();
+  }
 }
 
 void THREAD_APP(int argc, char **argv){

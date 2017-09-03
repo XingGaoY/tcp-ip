@@ -51,18 +51,17 @@ int ethernet_input(struct sk_buff *skb){
  * @return 1 if the packet was sent, -1 on failure
  */
 int ethernet_output(struct sk_buff *skb, const struct eth_addr *src, const struct eth_addr *dst, uint16_t eth_type){
-  struct eth_hdr *ethhdr = (struct eth_hdr*)malloc(SIZEOF_ETH_HDR);
+  struct eth_hdr *ethhdr;
   uint16_t eth_type_be = lwip_htons(eth_type);
   
+  skb_push(skb, SIZEOF_ETH_HDR);
+  ethhdr = (struct eth_hdr *)skb->data;
+
   ethhdr->type = eth_type_be;
   ethhdr->dest = *dst;
   ethhdr->src = *src;
 
-  skb_add_hdr(skb, ethhdr, SIZEOF_ETH_HDR);
   skb->mac_header = skb->data;
-
-  free(ethhdr);
-  ethhdr = NULL;
 
   /* pad to min ethernet frame length */
   if(skb->len < MIN_ETH_LEN){

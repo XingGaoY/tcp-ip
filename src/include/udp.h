@@ -9,6 +9,7 @@
 
 #define SIZEOF_UDP_HDR 8
 #define UDP_HTABLE_SIZE 10
+#define MAX_UDP_HDR MAX_IP_HDR + SIZEOF_UDP_HDR
 
 extern struct proto udp_prot;
 
@@ -21,6 +22,10 @@ struct udp_hdr{
 };
 
 /* the UDP protocol control block */
+struct udp_opt {
+  int pending;
+};
+
 struct udp_sock{
   struct inet_sock inet;
 };

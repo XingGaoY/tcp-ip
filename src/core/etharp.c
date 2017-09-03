@@ -47,7 +47,7 @@ static int etharp_find_entry(const struct ip4_addr *ipaddr){
     i = empty;
   else{
   /* An entry with old state is supposed to be discarded */
-    perror("Not enough room for new art entry\n");
+    printf("Not enough room for new art entry\n");
     return -1;
   }
 

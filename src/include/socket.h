@@ -15,7 +15,7 @@
 typedef short int _sa_family_t;
 
 struct __sockaddr {
-  uint32_t		sa_data;	/* protocol address, suppose legal ip addr	*/
+  uint32_t		ip_addr;	/* protocol address, suppose legal ip addr	*/
   unsigned short int  	port;
 };
 
@@ -23,5 +23,6 @@ struct __sockaddr {
 int raw_socket(int type);
 int raw_bind(int sock_fd, struct __sockaddr *addr);
 int raw_recv(int sock_fd, void *buf, int len);
-
+int raw_send(int sock_fd, void *buf, int len, 
+             const struct __sockaddr *dest_addr);
 #endif // _SOCKET_H_

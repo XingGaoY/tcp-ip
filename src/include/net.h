@@ -31,7 +31,8 @@ struct proto_ops{
 				      struct socket *newsock, int flags);
 	int		(*listen)    (struct socket *sock, int len);
 	int		(*shutdown)  (struct socket *sock, int flags);
-	int		(*sendmsg)   (struct socket *sock, void *buf, int len);
+	int		(*sendmsg)   (struct socket *sock, void *buf, int len, 
+                                      const struct __sockaddr *daddr);
 	int		(*recvmsg)   (struct socket *sock, void *buf, int len);
 };
 

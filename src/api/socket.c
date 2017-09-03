@@ -66,3 +66,16 @@ int raw_recv(int sock_fd, void *buf, int len){
   }
   return retval;
 }
+
+//TODO This fun should be called after bind which is slightly different from POSIX now
+// All the msg_hdr process is ignored so no further sys_msgsend()
+int raw_send(int sock_fd, void *buf, int len, 
+             const struct __sockaddr *dest_addr){
+  struct socket *sock;
+  int retval = 0;
+
+  if((sock = sock_list[sock_fd]) != NULL){
+    retval = sock->ops->sendmsg(sock, buf, len, dest_addr);
+  }
+  return retval;
+}

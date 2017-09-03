@@ -9,4 +9,6 @@ void THREAD_APP(int argc, char **argv);
 
 void udp_server();
 
+void udp_client();
+
 #endif // _APP_H_

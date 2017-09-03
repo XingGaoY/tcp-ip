@@ -1,6 +1,7 @@
 #include "udp.h"
 #include "def.h"
 #include "ip4.h"
+#include "netif.h"
 
 struct hlist_head udp_hash[UDP_HTABLE_SIZE];
 
@@ -22,6 +23,12 @@ static int udp_queue_rcv_skb(struct sock * sk, struct sk_buff *skb){
 
   // sk_data_ready is used to generate irq or semaphore to wake up reading function
   // omit here, the app thread will read from skb queue
+  return 0;
+}
+
+static int udp_queue_xmit_skb(struct sock * sk, struct sk_buff *skb){
+  skb_queue_tail(sk->sk_xmit_queue, skb, &sk->rcv_lock);
+
   return 0;
 }
 
@@ -105,9 +112,7 @@ void udp_rcv(struct sk_buff *skb){
   fprintf(logout, "src port = %x  dest port = %x  UDP len = %x  UDP chksum = %04x\n", sport, dport, udphdr->len, udphdr->chksum);
 
   skb->transport_header = skb->data;
-    printf("%d\n", skb->len);
   skb_pull(skb, SIZEOF_UDP_HDR);
-  printf("%d\n", skb->len);
   /* No UDP chksum check for now, and of course do not send UDP with chksum as well */
 
   /* Loop through the udp_pcb, cmp the ip&port and the ip&port in pcb */
@@ -149,6 +154,54 @@ int udp_recvmsg(struct sock *sk, void *buf, int len){
   return copied;
 }
 
+// Of course, no UDP chksum generation now
+//TODO No udp xmit queue, that is all the udp data not sent already will not change its dest info
+int udp_sendmsg(struct sock *sk, void *buf, int len, const struct __sockaddr *_daddr){
+  int retval = 0;
+  int ulen = len;
+  struct udp_hdr *udphdr;
+  struct sk_buff *skb;
+  struct inet_opt *inet;
+
+  inet = inet_sk(sk);
+  inet->daddr = _daddr->ip_addr;
+  inet->dport = _daddr->port;
+
+  // No length check now, suppose not larger than 64KB
+
+  //TODO Check if pending now, go to do_append_data if pending
+  // if(sk->pending)
+  // goto do_append_data;
+
+  ulen += SIZEOF_UDP_HDR;
+
+  //TODO if no daddr, called connect before sending
+  // get dest info from sk
+
+  // No multicast now
+
+  // Alloc skbuff now
+  //TODO Check router to find MMU is needed
+  skb = alloc_skb();
+  skb_reserve(skb, MAX_UDP_HDR);
+  skb_add_data(skb, buf, len);
+  skb_push(skb, SIZEOF_UDP_HDR);
+  skb->sk = sk;
+
+  udphdr = skb->data;
+  udphdr->src = PP_HTONS(inet->sport);
+  udphdr->dest = PP_HTONS(inet->dport);
+  udphdr->len = PP_HTONS(ulen);
+  udphdr->chksum = 0x0000;
+
+  retval = ip_output_if_src(skb);
+
+  // This is only used in udp push pending frame
+  //udp_queue_xmit_skb(sk, skb);
+  
+  return retval;
+}
+
 void udp_init(){
   for(int i = 0; i < UDP_HTABLE_SIZE; i++)
     INIT_HLIST_HEAD(&udp_hash[i]);
@@ -157,6 +210,7 @@ void udp_init(){
 struct proto udp_prot = {
   .name     =   "UDP",
   .sk_alloc =   udp_sk_alloc,
+  .sendmsg  =   udp_sendmsg,
   .recvmsg  =   udp_recvmsg,
   .get_port =	udp_v4_get_port,
 };

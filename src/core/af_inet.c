@@ -1,4 +1,5 @@
 #include "af_inet.h"
+#include "netif.h"
 
 int inet_bind(struct socket *sock, struct __sockaddr *uaddr){
   struct sock *sk = sock->sk;
@@ -18,18 +19,31 @@ int inet_bind(struct socket *sock, struct __sockaddr *uaddr){
     // release sock
   }
   // Add info to sock
+  inet->saddr = netif->ipaddr.addr;
   inet->sport = sport;
   inet->daddr = 0;
   inet->dport = 0;
+  inet->id = 0;
   //sk_dst_reset(sk);
   return 1;
 }
 
 int inet_recvmsg(struct socket *sock, void *buf, int len){
+//TODO a autobind is needed if not bind before
   int retval;
 
   struct sock *sk = sock->sk;
   retval = sk->sk_prot->recvmsg(sk, buf, len);
+
+  return retval;
+}
+
+int inet_sendmsg(struct socket *sock, void *buf, int len, 
+                 const struct __sockaddr *daddr){
+  int retval;
+
+  struct sock *sk = sock->sk;
+  retval = sk->sk_prot->sendmsg(sk, buf, len, daddr);
 
   return retval;
 }
@@ -41,7 +55,7 @@ struct proto_ops inet_dgram_ops = {
   .accept = NULL,
   .listen = NULL,
   .shutdown = NULL,
-  .sendmsg = NULL,
+  .sendmsg = inet_sendmsg,
   .recvmsg = inet_recvmsg
 };
 

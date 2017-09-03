@@ -1,10 +1,5 @@
 #include "skbuff.h"
 
-void *skb_add_hdr(struct sk_buff *skb, void *hdr, int len){
-  memcpy(skb_push(skb, len), hdr, len);
-  return skb->data;
-}
-
 void *skb_add_data(struct sk_buff *skb, void *data, int len){  
   memcpy(skb->data, data, len);
   
@@ -12,6 +7,12 @@ void *skb_add_data(struct sk_buff *skb, void *data, int len){
   skb->len += len;
 
   return skb->data;
+}
+
+void skb_reserve(struct sk_buff *skb, int len)
+{
+	skb->data += len;
+	skb->tail += len;
 }
 
 void *skb_push(struct sk_buff *skb, int len){
