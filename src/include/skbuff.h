@@ -55,38 +55,46 @@ static inline struct sk_buff *skb_queue_front(struct sk_buff_head *list){
   return result;
 }
 
-static inline struct sk_buff *skb_dequeue(struct sk_buff_head *list)
+static inline struct sk_buff *skb_dequeue(struct sk_buff_head *list, pthread_spinlock_t *lock)
 {
-	struct sk_buff *next, *prev, *result;
+  struct sk_buff *next, *prev, *result;
 
-	prev = (struct sk_buff *) list;
-	next = prev->next;
-	result = NULL;
-	if (next != prev) {
-		result	     = next;
-		next	     = next->next;
-		list->qlen--;
-		next->prev   = prev;
-		prev->next   = next;
-		result->next = result->prev = NULL;
-		result->list = NULL;
-	}
-	return result;
+  pthread_spin_lock(lock);
+  {
+    prev = (struct sk_buff *) list;
+    next = prev->next;
+    result = NULL;
+    if (next != prev) {
+      result       = next;
+      next	 = next->next;
+      list->qlen--;
+      next->prev   = prev;
+      prev->next   = next;
+      result->next = result->prev = NULL;
+      result->list = NULL;
+    }
+  }
+  pthread_spin_unlock(lock);
+  return result;
 }
 
 //TODO The lock for the list may be needed
-static inline void skb_queue_tail(struct sk_buff_head *list,
-				   struct sk_buff *newsk)
+static inline void skb_queue_tail(struct sk_buff_head *list, struct sk_buff *newsk, 
+                                  pthread_spinlock_t *lock)
 {
-	struct sk_buff *prev, *next;
+  struct sk_buff *prev, *next;
 
-	newsk->list = list;
-	list->qlen++;
-	next = (struct sk_buff *)list;
-	prev = next->prev;
-	newsk->next = next;
-	newsk->prev = prev;
-	next->prev  = prev->next = newsk;
+  pthread_spin_lock(lock);
+  {
+    newsk->list = list;
+    list->qlen++;
+    next = (struct sk_buff *)list;
+    prev = next->prev;
+    newsk->next = next;
+    newsk->prev = prev;
+    next->prev  = prev->next = newsk;
+  }
+  pthread_spin_unlock(lock);
 }
 
 #endif // _SKBUFF_H_

@@ -8,14 +8,17 @@ struct sock *udp_sk_alloc(){
   struct udp_sock *udp_sk = (struct udp_sock *)malloc(sizeof(struct udp_sock));
   struct sock *sk = &udp_sk->inet.sk;
 
+  pthread_spin_init(&sk->rcv_lock, PTHREAD_PROCESS_PRIVATE);
+  pthread_spin_init(&sk->xmit_lock, PTHREAD_PROCESS_PRIVATE);
+
   sk->sk_receive_queue = (struct sk_buff_head *)malloc(sizeof(struct sk_buff_head));
-  sk->sk_write_queue = (struct sk_buff_head *)malloc(sizeof(struct sk_buff_head));
+  sk->sk_xmit_queue = (struct sk_buff_head *)malloc(sizeof(struct sk_buff_head));
 
   return sk;
 }
 
 static int udp_queue_rcv_skb(struct sock * sk, struct sk_buff *skb){
-  skb_queue_tail(sk->sk_receive_queue, skb);
+  skb_queue_tail(sk->sk_receive_queue, skb, &sk->rcv_lock);
 
   // sk_data_ready is used to generate irq or semaphore to wake up reading function
   // omit here, the app thread will read from skb queue

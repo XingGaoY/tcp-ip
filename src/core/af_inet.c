@@ -73,7 +73,7 @@ int inet_create(struct socket *sock){
   memset(inet, 0, sizeof(struct inet_opt));
 
   skb_queue_head_init(sk->sk_receive_queue);
-  skb_queue_head_init(sk->sk_write_queue);
+  skb_queue_head_init(sk->sk_xmit_queue);
 
   sock->sk = sk;
 

@@ -4,6 +4,7 @@
 #include "def.h"
 #include "list.h"
 #include "socket.h"
+#include <pthread.h>
 
 struct sk_buff_head;
 struct socket;
@@ -14,8 +15,11 @@ struct sock{
   struct hlist_node sk_node;
   unsigned short sk_type;
   struct proto *sk_prot;
+
+  pthread_spinlock_t rcv_lock;
+  pthread_spinlock_t xmit_lock;
   struct sk_buff_head *sk_receive_queue;
-  struct sk_buff_head *sk_write_queue;
+  struct sk_buff_head *sk_xmit_queue;
 };
 
 struct proto {

@@ -60,7 +60,7 @@ struct sk_buff *skb_recv_datagram(struct sock *sk){
   // a loop is used for time check or block
   // maybe used in tcp
 
-  return skb = skb_dequeue(sk->sk_receive_queue);
+  return skb = skb_dequeue(sk->sk_receive_queue, &sk->rcv_lock);
 }
 
 void kfree_skb(struct sk_buff *skb){
