@@ -2,47 +2,25 @@
 #include "netif.h"
 #include "util.h"
 #include "af_inet.h"
-#include <pthread.h>
-#include "socket.h"
-
-struct op{
-  int argc;
-  char **argv;
-};
-
-void userapp(void *a){
-  struct op *arg = (struct op*)a;
-  int c;
-  while ( (c = getopt(arg->argc, arg->argv, "U")) != EOF) {
-    printf("%d ", c);
-    switch (c) {
-      case 'U':
-        break;
-      case '?':
-        printf("unrecognized option");
-    }
-  }
-}
+#include "app.h"
 
 FILE *logout;
 
 int main(int argc, char** argv){
-  pthread_t USR_APP_THREAD;
+  if(argc < 2){
+    printf("Too few argument.\n");
+    exit(0);
+  }
 
   logout = fopen("log", "w+");
   setbuf(logout, NULL);
 
-  struct op arg = {argc, argv};
-
-  pthread_create(&USR_APP_THREAD, NULL, (void*)userapp, &arg);
+  op_t arg = {argc, argv};
 
   netdev_init();
   inet_init();
-
-  struct __sockaddr addr;
-  addr.port = 1800;
-  int sockfd = raw_socket(_SOCK_DGRAM);
-  raw_bind(sockfd, &addr);
+  
+  THREAD_APP(arg);
 
   netdev_listen();
 }

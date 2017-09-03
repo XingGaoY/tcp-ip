@@ -8,8 +8,9 @@ OBJ_DIR := $(CUR_DIR)/obj
 vpath %.o $(OBJ_DIR)
 
 DIRS := src/netif	\
-        src/core        \
-	src/api
+	src/core        \
+	src/api		\
+	src/app
 
 SRC := $(foreach n, $(DIRS), $(wildcard $(n)/*.c))
 

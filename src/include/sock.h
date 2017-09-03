@@ -7,37 +7,10 @@
 struct sk_buff_head;
 struct socket;
 
-enum SK_SHUTDOWN{
-  RCV_SHUTDOWN = 0,
-  SEND_SHUTDOWN,
-  SHUTDOWN_MASK
-};
-
-enum SK_NO_CHECK{
-  UDP_CSUM_NOXMIT = 0,
-  UDP_CSUM_NORCV,
-  UDP_CSUM_DEFAULT
-};
-
-enum SK_USERLOCKS{
-  SOCK_SNDBUF_LOCK = 0,
-  SOCK_RCVBUF_LOCK,
-  SOCK_BINDADDR_LOCK,
-  SOCK_BINDPORT_LOCK
-};
-
-struct sock_common{
-  struct hlist_node skc_node;		// the node in sk hash list
-};
-
 struct proto;
 
 struct sock{
-  struct sock_common __sk_common;
-#define sk_node __sk_common.skc_node
-  //unsigned char sk_shutdown:2,
-  //              sk_no_check:2,
-  //              sk_userlocks:4;
+  struct hlist_node sk_node;
   unsigned short sk_type;
   struct proto *sk_prot;
   struct sk_buff_head *sk_receive_queue;
