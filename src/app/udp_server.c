@@ -13,11 +13,11 @@ printf("UDP server...\n");
   printf("UDP server binded...\n");
   while(1){
     memset(buf, 0, 100);
-    raw_recv(sockfd, buf, 100);
+    int len = raw_recv(sockfd, buf, 100);
     printf("=====\nMSG Received:\n");
-    for(int i=0; i<100; i++){
+    for(int i=0; i<len; i++){
       if(i%8 == 0) printf("\n");
-      printf("%02x", buf[i]);
+      printf("%c", buf[i]);
     }
     printf("\n=====\n");
   }

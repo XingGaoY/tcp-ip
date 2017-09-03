@@ -105,8 +105,9 @@ void udp_rcv(struct sk_buff *skb){
   fprintf(logout, "src port = %x  dest port = %x  UDP len = %x  UDP chksum = %04x\n", sport, dport, udphdr->len, udphdr->chksum);
 
   skb->transport_header = skb->data;
+    printf("%d\n", skb->len);
   skb_pull(skb, SIZEOF_UDP_HDR);
-
+  printf("%d\n", skb->len);
   /* No UDP chksum check for now, and of course do not send UDP with chksum as well */
 
   /* Loop through the udp_pcb, cmp the ip&port and the ip&port in pcb */

@@ -52,6 +52,7 @@ void ip4_input(struct sk_buff *skb){
   ip_data.current_ip4_header = iphdr;
   ip_data.current_ip_header_tot_len = IPH_HL(iphdr) * 4;
 
+  skb->len = (unsigned int)PP_HTONS(IPH_LEN(iphdr));
   skb->network_header = skb->data;
   skb_pull(skb, iphdr_hlen);
 

@@ -62,7 +62,7 @@ int raw_recv(int sock_fd, void *buf, int len){
   int retval = 0;
   
   if((sock = sock_list[sock_fd]) != NULL){
-    sock->ops->recvmsg(sock, buf, len);
+    retval = sock->ops->recvmsg(sock, buf, len);
   }
   return retval;
 }

@@ -26,8 +26,12 @@ int inet_bind(struct socket *sock, struct __sockaddr *uaddr){
 }
 
 int inet_recvmsg(struct socket *sock, void *buf, int len){
+  int retval;
+
   struct sock *sk = sock->sk;
-  return sk->sk_prot->recvmsg(sk, buf, len);
+  retval = sk->sk_prot->recvmsg(sk, buf, len);
+
+  return retval;
 }
 
 struct proto_ops inet_dgram_ops = {
