@@ -3,6 +3,7 @@
 #include "icmp.h"
 #include "etharp.h"
 #include "udp.h"
+#include "tcp.h"
 
 /**
  * This function is called by the network interface device driver when
@@ -58,6 +59,9 @@ void ip4_input(struct sk_buff *skb){
       break;
     case IP_PROTO_UDP:
       udp_rcv(skb);
+      break;
+    case IP_PROTO_TCP:
+      tcp_rcv(skb);
       break;
     default:
       break;

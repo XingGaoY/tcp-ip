@@ -2,12 +2,15 @@
 #define _AF_INET_H_
 
 // As no other network family, I moved it out to make it simple
-#include "inet_common.h"
 #include "sock.h"
 #include "udp.h"
+#include "tcp.h"
 #include "net.h"
 
 #define PROTO_NUM 2
+
+extern struct proto_ops inet_dgram_ops;
+extern struct proto_ops inet_stream_ops;
 
 enum {
   IPPROTO_IP = 0,		/* Dummy protocol for TCP		*/

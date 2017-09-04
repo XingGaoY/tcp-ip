@@ -60,11 +60,17 @@ struct proto_ops inet_dgram_ops = {
   .recvmsg = inet_recvmsg
 };
 
+struct proto_ops inet_stream_ops = {
+
+};
+
 struct inet_protosw inetsw_array[] =
 {
   {
     .type = _SOCK_STREAM,
     .protocol = IPPROTO_TCP,
+    .prot = &tcp_prot,
+    .ops = &inet_stream_ops,
   },
   {
     .type = _SOCK_DGRAM,
