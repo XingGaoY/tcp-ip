@@ -178,7 +178,8 @@ void etharp_output(struct sk_buff *skb, struct ip4_addr *dst){
   /* and check ipaddr outside local network or not is necessary */
   /* as we only use TAP, we simply check arp table instead */
   for(int i = 0; i < ARP_TABLE_SIZE; i++){
-    if(dst->addr == arp_table[i].ipaddr.addr){
+    if(dst->addr == arp_table[i].ipaddr.addr &&
+         arp_table[i].state == ETHARP_STATE_STABLE){
       ethdst_addr = &arp_table[i].ethaddr;
 
       fprintf(logout, "Found the dst hwaddr in ARP cache: ");
@@ -189,4 +190,12 @@ void etharp_output(struct sk_buff *skb, struct ip4_addr *dst){
   ethsrc_addr = &netif->hwaddr;
   
   ethernet_output(skb, ethsrc_addr, ethdst_addr, ETHTYPE_IP);
+}
+
+void etharp_init(){
+  for(int i = 0; i < ARP_TABLE_SIZE; i++){
+    arp_table[i].ipaddr.addr = 0;
+    memset(&arp_table[i].ethaddr, 0, sizeof(struct eth_addr));
+    arp_table[i].state = ETHARP_STATE_EMPTY;
+  }
 }

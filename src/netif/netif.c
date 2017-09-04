@@ -4,6 +4,7 @@
 #include "dev_setup.h"
 #include "util.h"
 #include "skbuff.h"
+#include "etharp.h"
 
 struct netif *netif;
 
@@ -26,6 +27,8 @@ void netdev_init(){
 
   if(set_up_dev(dev) != 0)
     perror("Unable to set up device");
+
+  etharp_init();
 
   fprintf(logout, "My hardware addr = ");
   print_eth_addr(&netif->hwaddr);

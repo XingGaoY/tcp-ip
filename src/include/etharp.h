@@ -44,4 +44,6 @@ etharp_raw(const struct eth_addr *ethsrc_addr, const struct eth_addr *ethdst_add
 void etharp_input(struct sk_buff *skb);
 void etharp_output(struct sk_buff *skb, struct ip4_addr *dst);
 
+void etharp_init();
+
 #endif //_ETHARP_H_

@@ -163,6 +163,8 @@ int udp_sendmsg(struct sock *sk, void *buf, int len, const struct __sockaddr *_d
   struct sk_buff *skb;
   struct inet_opt *inet;
 
+  printf("Appending udp header...");
+
   inet = inet_sk(sk);
   inet->daddr = _daddr->ip_addr;
   inet->dport = _daddr->port;
