@@ -3,12 +3,28 @@ A simple tcp/ip stack implemented with TUN/TAP device in linux user mode.
 
 The notes and my implementation of tcp/ip stack is maintained here.
 
+# Implemented Step by Step
+I refered to saminiir's step, and mark them with tags 
+## v0.1
+[Set up TAP device and parse eth-hdr](doc/1-TAP-ethhdr.md)
+
+## v0.2
+[Implement ARP, handles ARP req and send reply](doc/2-arp.md) 
+
+## v0.3
+[Add IP procedure to receive and send datagram, parse IP-hdr, handles ICMP req and send ICMP reply](doc/3-iphdr-icmp.md)
+
+## v0.4
+
+[UDP and sock](doc/4-1-UDP-sock.md)
+[socket and socket API(1)](doc/4-2-socket-API-1.md)
+
 # Assignments
 :new:: working on  
 - [x] : implemented but is simplified and lack some feature
 - [ ] : planning to do
 ### General
-:new: skbuff
+- [x] skbuff
 ### Net Device
 - [x] TAP/TUN
 ### Link layer
@@ -24,23 +40,16 @@ The notes and my implementation of tcp/ip stack is maintained here.
   - [x] ICMP header Processing(rcv & xmit)
   - [x] ICMP request and reply(able to answer `ping` program)
 ### Transport layer
-- [ ] UDP
-  - :new: UDP Header Processing
-  - :new: `sk`
-  - :new: UDP API for App layer
+- [x] UDP
+  - [x] UDP Header Processing
+  - [x] UDP recv and xmit
+  - [x] UDP API for App layer
 ### Socket
 - :new: Socket API
-
-# Implemented Step by Step
-I refered to saminiir's step, and mark them with tags 
-## v0.1
-[Set up TAP device and parse eth-hdr](doc/1-TAP-ethhdr.md)
-
-## v0.2
-[Implement ARP, handles ARP req and send reply](doc/2-arp.md) 
-
-## v0.3
-[Add IP procedure to receive and send datagram, parse IP-hdr, handles ICMP req and send ICMP reply](doc/3-iphdr-icmp.md)
+  - [x] `socket()`
+  - [x] `bind()`
+  - [x] `recv()`
+  - [x] `send()`
 
 ## Reference
 - TCP/IP Illustrated vol.1

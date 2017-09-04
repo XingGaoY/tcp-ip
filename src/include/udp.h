@@ -18,7 +18,6 @@ struct udp_hdr{
   uint16_t dest;
   uint16_t len;
   uint16_t chksum;
-  char data[];
 };
 
 /* the UDP protocol control block */
