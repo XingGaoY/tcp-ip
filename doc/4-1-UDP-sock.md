@@ -53,7 +53,7 @@ list of recv or xmit. sk_buff are multiplexed and put into correct list of the s
 ## sk_buff structure
 This is the sk_buff I simplified, it is enough for UDP now, maybe I need to add something for 
 TCP:
-```
+```c
 struct sk_buff{
   struct sk_buff *next;
   struct sk_buff *prev;
