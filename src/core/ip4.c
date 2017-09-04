@@ -93,9 +93,9 @@ int ip_output_if_src(struct sk_buff *skb){
 
   IPH_VHL_SET(iphdr, 0x04, SIZEOF_IP4_HDR/4);
   iphdr->_tos = 0;
-  iphdr->_len = SIZEOF_IP4_HDR + len;
+  iphdr->_len = PP_HTONS(SIZEOF_IP4_HDR + len);
   iphdr->_id  = inet->id++;
-  iphdr->_offset = 0x4000;
+  iphdr->_offset = 0x0040;
   iphdr->_ttl = inet->ttl;
   iphdr->_proto = skb->sk->sk_type;
   iphdr->_chksum = 0x0000;

@@ -29,7 +29,6 @@ void udp_server(){
 
 void udp_client(){
   struct __sockaddr saddr, daddr;
-  char inbuf[100];
   char buf[100];  
 
   printf("UDP client...\n");
@@ -40,9 +39,10 @@ void udp_client(){
   raw_bind(sockfd, &saddr);
   printf("UDP client binded...\n");
   while(1){
-    fgets(inbuf, 100, stdin);
-    int len = strlen(inbuf);
     memset(buf, 0, 100);
+    fgets(buf, 100, stdin);
+    int len = strlen(buf);
+
     raw_send(sockfd, buf, len, &daddr);
   }
 }

@@ -21,6 +21,7 @@ int inet_bind(struct socket *sock, struct __sockaddr *uaddr){
   // Add info to sock
   inet->saddr = netif->ipaddr.addr;
   inet->sport = sport;
+  inet->ttl = 32;
   inet->daddr = 0;
   inet->dport = 0;
   inet->id = 0;
@@ -85,6 +86,7 @@ int inet_create(struct socket *sock){
   // need to check if it is the right proto
 
   sk->sk_prot = proto->prot;
+  sk->sk_type = proto->protocol;
 
   inet = inet_sk(sk);
   
