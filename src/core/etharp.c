@@ -2,21 +2,26 @@
 
 #include "etharp.h"
 #include "util.h"
+#include <pthread.h>
 
 /** ARP states */
 enum etharp_state{
   ETHARP_STATE_EMPTY = 0,
-  ETHARP_STATE_STABLE
+  ETHARP_STATE_STABLE,
+  ETHARP_STATE_PENDING
 };
 
 struct etharp_entry{
   struct ip4_addr ipaddr;
   struct eth_addr ethaddr;
 
+  pthread_cond_t arp_state_stablize;
+
   int state;
 };
 
 static struct etharp_entry arp_table[ARP_TABLE_SIZE];
+static pthread_mutex_t arp_list_mutex;
 
 /**
  * Search the ARP table for a matching or new table.
@@ -52,7 +57,9 @@ static int etharp_find_entry(const struct ip4_addr *ipaddr){
   }
 
   fprintf(logout, "New arp entry index: %d\n", i);
+
   arp_table[i].state = ETHARP_STATE_EMPTY;
+
   if(ipaddr)
     memcpy(&arp_table[i].ipaddr, ipaddr, sizeof(struct ip4_addr));
   return i;
@@ -62,17 +69,24 @@ static int etharp_find_entry(const struct ip4_addr *ipaddr){
  * Update (or insert) a IP/MAC address pair in the ARP cache.
  */
 void etharp_update_arp_entry(const struct ip4_addr *ipaddr, struct eth_addr *ethaddr){
-  int i;
+  int i, state;
   fprintf(logout, "Updating arp table...\n");
 
   //TODO some check of ip addr type is omitted
 
+  pthread_mutex_lock(&arp_list_mutex);
+  {
   /* find or create ARP entry */
-  i = etharp_find_entry(ipaddr);
+    i = etharp_find_entry(ipaddr);
+    if(i < 0) printf("Unable to update an arp entry");
 
-  if(i < 0) perror("Unable to update an arp entry");
+    state = arp_table[i].state;
+    arp_table[i].state = ETHARP_STATE_STABLE;
+    if(state == ETHARP_STATE_PENDING)
+      pthread_cond_signal(&arp_table[i].arp_state_stablize);
+  }
+  pthread_mutex_unlock(&arp_list_mutex);
 
-  arp_table[i].state = ETHARP_STATE_STABLE;
   memcpy(&arp_table[i].ethaddr, ethaddr, sizeof(struct eth_addr));
 }
 
@@ -106,6 +120,17 @@ etharp_raw(const struct eth_addr *ethsrc_addr, const struct eth_addr *ethdst_add
   hdr = NULL;
 
   ethernet_output(skb, ethsrc_addr, ethdst_addr, ETHTYPE_ARP);
+}
+
+// No arp query can be called solely from upper layers
+// so no packet from upper layers will be xmit to this fun
+void etharp_query(const struct ip4_addr *dst){
+  struct eth_addr shwaddr;
+
+  memset(&shwaddr, -1, sizeof(struct eth_addr));
+
+  etharp_raw(&netif->hwaddr, &shwaddr, &netif->hwaddr, 
+               &netif->ipaddr, &shwaddr, dst, ARP_REQUEST);
 }
 
 void etharp_input(struct sk_buff *skb){
@@ -172,12 +197,14 @@ void etharp_input(struct sk_buff *skb){
 }
 
 void etharp_output(struct sk_buff *skb, struct ip4_addr *dst){
-  struct eth_addr *ethsrc_addr, *ethdst_addr;
+  struct eth_addr *ethsrc_addr, *ethdst_addr = NULL;
+  int i;
 
   /* unicast or muilticast need to be checked */
   /* and check ipaddr outside local network or not is necessary */
   /* as we only use TAP, we simply check arp table instead */
-  for(int i = 0; i < ARP_TABLE_SIZE; i++){
+  // TODO a lock is needed here, but as no stable entry will be removed, no now
+  for(i = 0; i < ARP_TABLE_SIZE; i++){
     if(dst->addr == arp_table[i].ipaddr.addr &&
          arp_table[i].state == ETHARP_STATE_STABLE){
       ethdst_addr = &arp_table[i].ethaddr;
@@ -188,7 +215,26 @@ void etharp_output(struct sk_buff *skb, struct ip4_addr *dst){
     }
   }
   ethsrc_addr = &netif->hwaddr;
-  
+
+  if(!ethdst_addr){
+    /* No corresponding arp entry found, send a arp query to get one */
+    pthread_mutex_lock(&arp_list_mutex);
+    {
+      i =etharp_find_entry(dst);
+      arp_table[i].state = ETHARP_STATE_PENDING;
+    }
+    pthread_mutex_unlock(&arp_list_mutex);
+
+    etharp_query(dst);
+    /* Wait arp reply to fill hwaddr */
+    pthread_mutex_lock(&arp_list_mutex);
+    {
+      while(arp_table[i].state == ETHARP_STATE_PENDING)
+        pthread_cond_wait(&arp_table[i].arp_state_stablize, &arp_list_mutex);
+      ethdst_addr = &arp_table[i].ethaddr;
+    }
+    pthread_mutex_unlock(&arp_list_mutex);
+  }
   ethernet_output(skb, ethsrc_addr, ethdst_addr, ETHTYPE_IP);
 }
 
@@ -197,5 +243,7 @@ void etharp_init(){
     arp_table[i].ipaddr.addr = 0;
     memset(&arp_table[i].ethaddr, 0, sizeof(struct eth_addr));
     arp_table[i].state = ETHARP_STATE_EMPTY;
+    pthread_cond_init(&arp_table[i].arp_state_stablize, NULL);
   }
+  pthread_mutex_init(&arp_list_mutex, NULL);
 }
