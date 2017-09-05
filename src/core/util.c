@@ -1,9 +1,21 @@
-#include"util.h"
+#include "util.h"
+#include <stdlib.h>
 
-void print_ip_addr(const struct ip4_addr *addr){
+#define PSEU_LEN 12
+
+struct pseudo_hdr{
+  uint32_t saddr;
+  uint32_t daddr;
+  uint8_t zero;
+  uint8_t proto;
+  uint16_t len;
+  char hdr[];
+};
+
+void print_ip_addr(const ip4_addr *addr){
   uint8_t segment[4];
   for(int i = 0; i < 4; i++){
-    segment[i] = ((addr->addr)>>(i*8))&0xff;
+    segment[i] = ((*addr)>>(i*8))&0xff;
   }
   fprintf(logout, "%d.%d.%d.%d", segment[0], segment[1], segment[2], segment[3]);
 }
@@ -33,4 +45,24 @@ uint16_t checksum(void *dataptr, int len){
     sum = (sum & 0xffff) + (sum >> 16);
 
   return ~sum;
+}
+
+uint16_t pseudo_chksum(struct sk_buff *skb, ip4_addr src, ip4_addr dest, uint8_t proto){
+  int len = skb->len;
+  int plen = (len/2 + 1) * 2;
+  void *p = malloc(PSEU_LEN + plen);
+  memset(p, 0, PSEU_LEN + plen);
+ 
+  struct pseudo_hdr *phdr;
+
+  phdr = (struct pseudo_hdr *)p;
+  
+  memcpy(phdr->hdr, skb->transport_header, len);
+  
+  phdr->saddr = src;
+  phdr->daddr = dest;
+  phdr->proto = proto;
+  phdr->len = PP_HTONS(len);
+
+  return checksum(p, PSEU_LEN + plen);
 }

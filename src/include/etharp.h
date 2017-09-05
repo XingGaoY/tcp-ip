@@ -33,18 +33,18 @@ enum etharp_opcode{
   ARP_REPLY = 2
 };
 
-void etharp_update_arp_entry(const struct ip4_addr *ipaddr, struct eth_addr *ethaddr);
+void etharp_update_arp_entry(const ip4_addr *ipaddr, struct eth_addr *ethaddr);
 
 void
 etharp_raw(const struct eth_addr *ethsrc_addr, const struct eth_addr *ethdst_addr,
-           const struct eth_addr *hwsrc_addr, const struct ip4_addr *ipsrc_addr,
-           const struct eth_addr *hwdst_addr, const struct ip4_addr *ipdst_addr,
+           const struct eth_addr *hwsrc_addr, const ip4_addr *ipsrc_addr,
+           const struct eth_addr *hwdst_addr, const ip4_addr *ipdst_addr,
            const uint16_t opcode);
 
-void etharp_query(const struct ip4_addr *dst);
+void etharp_query(const ip4_addr *dst);
 
 void etharp_input(struct sk_buff *skb);
-void etharp_output(struct sk_buff *skb, struct ip4_addr *dst);
+void etharp_output(struct sk_buff *skb, ip4_addr *dst);
 
 void etharp_init();
 

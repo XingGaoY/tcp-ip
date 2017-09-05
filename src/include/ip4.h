@@ -24,8 +24,8 @@ struct ip_hdr{
   uint8_t _ttl;
   uint8_t _proto;
   uint16_t _chksum;
-  struct ip4_addr src;
-  struct ip4_addr dest;
+  ip4_addr src;
+  ip4_addr dest;
 };
 
 /* Macros to get struct ip_hdr fields: */

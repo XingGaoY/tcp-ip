@@ -3,9 +3,7 @@
 
 #include"def.h"
 
-struct ip4_addr{
-  uint32_t addr;
-};
+typedef uint32_t ip4_addr;
 
 /* 
  * Some compiler may make ip4_addr aligned, so use another ip addr def in ARP
@@ -19,7 +17,7 @@ struct ip4_addr2{
  * 16-bit-aligned if the port is correctly configured (so a port could define
  * this to copying 2 u16_t's) - no NULL-pointer-checking needed. */
 #ifndef IPADDR2_COPY
-#define IPADDR2_COPY(dest, src) memcpy(dest, src, sizeof(struct ip4_addr))
+#define IPADDR2_COPY(dest, src) memcpy(dest, src, sizeof(ip4_addr))
 #endif
 
 #endif //_IP4_ADDR_H_

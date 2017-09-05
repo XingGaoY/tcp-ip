@@ -2,6 +2,7 @@
 #include "def.h"
 #include "ip4.h"
 #include "netif.h"
+#include "util.h"
 
 struct hlist_head udp_hash[UDP_HTABLE_SIZE];
 
@@ -102,8 +103,8 @@ void udp_rcv(struct sk_buff *skb){
 
   udphdr = (struct udp_hdr *)skb->data;
   iphdr = (struct ip_hdr *) skb->network_header;
-  saddr = iphdr->src.addr;
-  daddr = iphdr->dest.addr;
+  saddr = iphdr->src;
+  daddr = iphdr->dest;
   sport = lwip_htons(udphdr->src);
   dport = lwip_htons(udphdr->dest);
 
@@ -112,6 +113,9 @@ void udp_rcv(struct sk_buff *skb){
   fprintf(logout, "src port = %x  dest port = %x  UDP len = %x  UDP chksum = %04x\n", sport, dport, udphdr->len, udphdr->chksum);
 
   skb->transport_header = skb->data;
+  /* check chksum, and silently drop the packet if err */
+  if(pseudo_chksum(skb, saddr, daddr, IPH_PROTO(iphdr))!=0)
+    return;
   skb_pull(skb, SIZEOF_UDP_HDR);
   /* No UDP chksum check for now, and of course do not send UDP with chksum as well */
 
@@ -188,6 +192,7 @@ int udp_sendmsg(struct sock *sk, void *buf, int len, const struct __sockaddr *_d
   skb_reserve(skb, MAX_UDP_HDR);
   skb_add_data(skb, buf, len);
   skb_push(skb, SIZEOF_UDP_HDR);
+  skb->transport_header = skb->data;
   skb->sk = sk;
 
   udphdr = skb->data;
@@ -195,6 +200,8 @@ int udp_sendmsg(struct sock *sk, void *buf, int len, const struct __sockaddr *_d
   udphdr->dest = PP_HTONS(inet->dport);
   udphdr->len = PP_HTONS(ulen);
   udphdr->chksum = 0x0000;
+
+  udphdr->chksum = pseudo_chksum(skb, inet->saddr, inet->daddr, sk->sk_type);
 
   retval = ip_output_if_src(skb);
 

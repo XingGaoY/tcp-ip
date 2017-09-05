@@ -68,7 +68,7 @@ void ip4_input(struct sk_buff *skb){
   }
 }
 
-void ip4_output_raw(struct sk_buff *skb, struct ip4_addr src, struct ip4_addr dst){
+void ip4_output_raw(struct sk_buff *skb, ip4_addr src, ip4_addr dst){
   struct ip_hdr *iphdr = skb->network_header;
 
   iphdr->_ttl = INIT_TTL;
@@ -87,11 +87,11 @@ void ip4_output_raw(struct sk_buff *skb, struct ip4_addr src, struct ip4_addr ds
 // no ip options for now
 int ip_output_if_src(struct sk_buff *skb){
   struct ip_hdr *iphdr;
-  struct ip4_addr dst;
+  ip4_addr dst;
   struct inet_opt *inet = inet_sk(skb->sk);
   uint16_t len = skb->len;
   
-  dst.addr = inet->daddr;
+  dst = inet->daddr;
   skb_push(skb, SIZEOF_IP4_HDR);
   iphdr = (struct ip_hdr *)skb->data;
 
@@ -103,7 +103,7 @@ int ip_output_if_src(struct sk_buff *skb){
   iphdr->_ttl = inet->ttl;
   iphdr->_proto = skb->sk->sk_type;
   iphdr->_chksum = 0x0000;
-  iphdr->src.addr = inet->saddr;
+  iphdr->src = inet->saddr;
   iphdr->dest = dst;
 
   iphdr->_chksum = checksum(iphdr, IPH_HL(iphdr)*4);

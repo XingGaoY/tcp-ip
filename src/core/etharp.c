@@ -12,7 +12,7 @@ enum etharp_state{
 };
 
 struct etharp_entry{
-  struct ip4_addr ipaddr;
+  ip4_addr ipaddr;
   struct eth_addr ethaddr;
 
   pthread_cond_t arp_state_stablize;
@@ -26,7 +26,7 @@ static pthread_mutex_t arp_list_mutex;
 /**
  * Search the ARP table for a matching or new table.
  */
-static int etharp_find_entry(const struct ip4_addr *ipaddr){
+static int etharp_find_entry(const ip4_addr *ipaddr){
   int i = 0, empty = ARP_TABLE_SIZE;
   /**
    * Trying to match the ipaddr
@@ -39,7 +39,7 @@ static int etharp_find_entry(const struct ip4_addr *ipaddr){
     if((empty == ARP_TABLE_SIZE) && (state == ETHARP_STATE_EMPTY))
       empty = i;
     else if(state != ETHARP_STATE_EMPTY){
-      if(ipaddr && ipaddr->addr == arp_table[i].ipaddr.addr){
+      if(ipaddr && *ipaddr == arp_table[i].ipaddr){
          fprintf(logout, "Found arp entry index: %d\n", i);
          return i;
       }
@@ -61,14 +61,14 @@ static int etharp_find_entry(const struct ip4_addr *ipaddr){
   arp_table[i].state = ETHARP_STATE_EMPTY;
 
   if(ipaddr)
-    memcpy(&arp_table[i].ipaddr, ipaddr, sizeof(struct ip4_addr));
+    memcpy(&arp_table[i].ipaddr, ipaddr, sizeof(ip4_addr));
   return i;
 }
 
 /*
  * Update (or insert) a IP/MAC address pair in the ARP cache.
  */
-void etharp_update_arp_entry(const struct ip4_addr *ipaddr, struct eth_addr *ethaddr){
+void etharp_update_arp_entry(const ip4_addr *ipaddr, struct eth_addr *ethaddr){
   int i, state;
   fprintf(logout, "Updating arp table...\n");
 
@@ -95,8 +95,8 @@ void etharp_update_arp_entry(const struct ip4_addr *ipaddr, struct eth_addr *eth
  */
 void
 etharp_raw(const struct eth_addr *ethsrc_addr, const struct eth_addr *ethdst_addr,
-           const struct eth_addr *hwsrc_addr, const struct ip4_addr *ipsrc_addr,
-           const struct eth_addr *hwdst_addr, const struct ip4_addr *ipdst_addr,
+           const struct eth_addr *hwsrc_addr, const ip4_addr *ipsrc_addr,
+           const struct eth_addr *hwdst_addr, const ip4_addr *ipdst_addr,
            const uint16_t opcode){
   struct sk_buff *skb;
   struct etharp_hdr *hdr;
@@ -108,7 +108,7 @@ etharp_raw(const struct eth_addr *ethsrc_addr, const struct eth_addr *ethdst_add
   hdr->hwtype = PP_HTONS(HWTYPE_ETHERNET);
   hdr->proto = PP_HTONS(ETHTYPE_IP);
   hdr->hwlen = ETH_HWADDR_LEN;
-  hdr->protolen = sizeof(struct ip4_addr);
+  hdr->protolen = sizeof(ip4_addr);
   hdr->opcode = PP_HTONS(opcode);
   hdr->shwaddr = *hwsrc_addr;
   hdr->dhwaddr = *hwdst_addr;
@@ -124,7 +124,7 @@ etharp_raw(const struct eth_addr *ethsrc_addr, const struct eth_addr *ethdst_add
 
 // No arp query can be called solely from upper layers
 // so no packet from upper layers will be xmit to this fun
-void etharp_query(const struct ip4_addr *dst){
+void etharp_query(const ip4_addr *dst){
   struct eth_addr shwaddr;
 
   memset(&shwaddr, -1, sizeof(struct eth_addr));
@@ -135,7 +135,7 @@ void etharp_query(const struct ip4_addr *dst){
 
 void etharp_input(struct sk_buff *skb){
   struct etharp_hdr *hdr;
-  struct ip4_addr sipaddr, dipaddr;
+  ip4_addr sipaddr, dipaddr;
   struct eth_addr shwaddr;
 
   /* Simply guess the ARP is for us */
@@ -196,7 +196,7 @@ void etharp_input(struct sk_buff *skb){
   }
 }
 
-void etharp_output(struct sk_buff *skb, struct ip4_addr *dst){
+void etharp_output(struct sk_buff *skb, ip4_addr *dst){
   struct eth_addr *ethsrc_addr, *ethdst_addr = NULL;
   int i;
 
@@ -205,7 +205,7 @@ void etharp_output(struct sk_buff *skb, struct ip4_addr *dst){
   /* as we only use TAP, we simply check arp table instead */
   // TODO a lock is needed here, but as no stable entry will be removed, no now
   for(i = 0; i < ARP_TABLE_SIZE; i++){
-    if(dst->addr == arp_table[i].ipaddr.addr &&
+    if(*dst == arp_table[i].ipaddr &&
          arp_table[i].state == ETHARP_STATE_STABLE){
       ethdst_addr = &arp_table[i].ethaddr;
 
@@ -240,7 +240,7 @@ void etharp_output(struct sk_buff *skb, struct ip4_addr *dst){
 
 void etharp_init(){
   for(int i = 0; i < ARP_TABLE_SIZE; i++){
-    arp_table[i].ipaddr.addr = 0;
+    arp_table[i].ipaddr = 0;
     memset(&arp_table[i].ethaddr, 0, sizeof(struct eth_addr));
     arp_table[i].state = ETHARP_STATE_EMPTY;
     pthread_cond_init(&arp_table[i].arp_state_stablize, NULL);

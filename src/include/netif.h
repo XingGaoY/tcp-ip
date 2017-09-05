@@ -10,7 +10,7 @@
 
 struct netif{
   int net_fd;
-  struct ip4_addr ipaddr;
+  ip4_addr ipaddr;
   struct eth_addr hwaddr;
 };
 

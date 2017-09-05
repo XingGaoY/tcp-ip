@@ -15,7 +15,7 @@ void netdev_init(){
    */
   netif = (struct netif*)malloc(sizeof(struct netif));
   memset(netif, 0, sizeof(struct netif));
-  netif->ipaddr.addr = IP_ADDR;
+  netif->ipaddr = IP_ADDR;
 
   struct eth_addr hw = HW_ADDR;
   memcpy(&netif->hwaddr, &hw, sizeof(hw));

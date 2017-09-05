@@ -19,7 +19,7 @@ int inet_bind(struct socket *sock, struct __sockaddr *uaddr){
     // release sock
   }
   // Add info to sock
-  inet->saddr = netif->ipaddr.addr;
+  inet->saddr = netif->ipaddr;
   inet->sport = sport;
   inet->ttl = 32;
   inet->daddr = 0;
