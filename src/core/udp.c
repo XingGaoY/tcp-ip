@@ -4,7 +4,7 @@
 #include "netif.h"
 #include "util.h"
 
-struct hlist_head udp_hash[UDP_HTABLE_SIZE];
+static struct hlist_head udp_hash[UDP_HTABLE_SIZE];
 
 struct sock *udp_sk_alloc(){
   struct udp_sock *udp_sk = (struct udp_sock *)malloc(sizeof(struct udp_sock));

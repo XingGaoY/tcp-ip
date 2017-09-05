@@ -27,10 +27,8 @@ struct udp_opt {
 
 struct udp_sock{
   struct inet_sock inet;
+  struct udp_opt opt;
 };
-
-/* the first pcb of the pcb list */
-extern struct hlist_head udp_hash[UDP_HTABLE_SIZE];
 
 void udp_init();
 void udp_rcv(struct sk_buff *skb);

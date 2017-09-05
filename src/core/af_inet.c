@@ -110,5 +110,7 @@ int inet_init(void){
 
   udp_init();
 
+  tcp_init();
+
   return 1;
 }

@@ -21,6 +21,10 @@ extern FILE *logout;
 #endif
 
 #define PP_HTONS(x) ((((x) & 0x00ffUL) << 8) | (((x) & 0xff00UL) >> 8))
+#define PP_HTONL(x) ((((x) & 0x000000ffUL) << 24) | \
+                     (((x) & 0x0000ff00UL) <<  8) | \
+                     (((x) & 0x00ff0000UL) >>  8) | \
+                     (((x) & 0xff000000UL) >> 24))
 
 /* lwip_htons -- Convert an u16_t from host to network byte order.
  * @param n u16_t in host byte order
