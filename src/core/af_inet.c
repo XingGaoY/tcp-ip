@@ -61,7 +61,7 @@ struct proto_ops inet_dgram_ops = {
 };
 
 struct proto_ops inet_stream_ops = {
-
+  .bind = inet_bind,
 };
 
 struct inet_protosw inetsw_array[] =
@@ -90,7 +90,11 @@ int inet_create(struct socket *sock){
   sk = (struct sock *)proto->prot->sk_alloc();
 
   // need to check if it is the right proto
+  pthread_spin_init(&sk->rcv_lock, PTHREAD_PROCESS_PRIVATE);
+  pthread_spin_init(&sk->xmit_lock, PTHREAD_PROCESS_PRIVATE);
 
+  sk->sk_receive_queue = (struct sk_buff_head *)malloc(sizeof(struct sk_buff_head));
+  sk->sk_xmit_queue = (struct sk_buff_head *)malloc(sizeof(struct sk_buff_head));
   sk->sk_prot = proto->prot;
   sk->sk_type = proto->protocol;
 

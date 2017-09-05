@@ -41,7 +41,7 @@ struct tcp_cb{
 
 /* TCP protocol control block */
 struct tcp_opt {
-  int state :6;
+  int state;
   uint32_t sseq;
   uint32_t dseq;
 };
@@ -75,6 +75,8 @@ enum tcp_state{
   LISTEN = 0,
   SYN_SENT = 1,
   SYN_RECV = 2,
+
+  CLOSED = 255,
 };
 
 void tcp_init();

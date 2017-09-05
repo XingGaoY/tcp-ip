@@ -13,6 +13,9 @@ struct sk_buff{
 
   struct sock *sk;
 
+  uint32_t saddr;
+  uint16_t sport;
+
   void *transport_header;
   void *network_header;
   void *mac_header;

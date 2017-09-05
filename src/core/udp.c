@@ -8,15 +8,7 @@ static struct hlist_head udp_hash[UDP_HTABLE_SIZE];
 
 struct sock *udp_sk_alloc(){
   struct udp_sock *udp_sk = (struct udp_sock *)malloc(sizeof(struct udp_sock));
-  struct sock *sk = &udp_sk->inet.sk;
-
-  pthread_spin_init(&sk->rcv_lock, PTHREAD_PROCESS_PRIVATE);
-  pthread_spin_init(&sk->xmit_lock, PTHREAD_PROCESS_PRIVATE);
-
-  sk->sk_receive_queue = (struct sk_buff_head *)malloc(sizeof(struct sk_buff_head));
-  sk->sk_xmit_queue = (struct sk_buff_head *)malloc(sizeof(struct sk_buff_head));
-
-  return sk;
+  return &udp_sk->inet.sk;
 }
 
 static int udp_queue_rcv_skb(struct sock * sk, struct sk_buff *skb){
