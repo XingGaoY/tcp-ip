@@ -38,15 +38,15 @@ static void tcp_listen_input(struct sk_buff *skb){
   tcpsk = tcp_sk(sk);
   /* Check if it is the first sync packet */
   /* Do not permit simultaneous open now */
-  if((tcpcb->flags & TCP_SYN) && (sk->sk_state == LISTEN)){
+  if((tcpcb->flags & TCP_SYN) && (tcpsk->tcp_state == LISTEN)){
     printf("The listening port received an TCP connection request...\n");
     tcpsk->dseq = tcpcb->seq;
-    sk->sk_state = SYN_SENT;
+    tcpsk->tcp_state = TCP_SYN_SENT;
 
     inet->dport = skb->sport;
     inet->daddr = skb->saddr;
     /* Send back an syn and ack dseq+1 */
-    tcp_output(sk, NULL, 0, SYN_SENT);
+    tcp_output(sk, NULL, 0, TCP_SYN_SENT);
   }
 }
 
@@ -95,7 +95,10 @@ int tcp_start_listen(struct sock *sk){
   // put sk into lhash and set state to listen
   // lhash is the list to save the sock in two sync state
   // I simplified it for now to eliminate lhash
+  struct tcp_opt *tcpsk = tcp_sk(sk);
+
   sk->sk_state = LISTEN;
+  tcpsk->tcp_state = TCP_LISTEN;
   return 0;
 }
 
@@ -211,7 +214,7 @@ void tcp_output(struct sock *sk, void *buf, int len, int type){
   tcphdr->wnd = PP_HTONS(0x1000);	//irrelevant now, set to 4096 temperarily
 
   switch(type){
-    case SYN_SENT:
+    case TCP_SYN_SENT:
       TCPH_HDRLEN_FLAGS_SET(tcphdr, SIZEOF_TCP_HDR, TCP_SYN|TCP_ACK);
       break;
     default:

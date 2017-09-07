@@ -41,6 +41,7 @@ struct tcp_cb{
 
 /* TCP protocol control block */
 struct tcp_opt {
+  int tcp_state;
   uint32_t sseq;
   uint32_t dseq;
 };
@@ -51,6 +52,12 @@ struct tcp_sock {
 };
 
 #define tcp_sk(__sk) (&((struct tcp_sock *)__sk)->tcp)
+
+enum TCP_STATE{
+  TCP_LISTEN = 0,
+  TCP_SYN_SENT = 1,
+  TCP_SYN_RECV = 2
+};
 
 /* TCP header flags bits */
 #define TCP_FIN 0x01U
