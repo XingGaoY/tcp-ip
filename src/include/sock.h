@@ -8,9 +8,10 @@
 
 /* sock state */
 enum sock_state{
-  LISTEN = 0,
+  SK_LISTEN = 0,
+  SK_CONNECTED,
 
-  CLOSED = 255,
+  SK_CLOSED = 255,
 };
 
 struct sk_buff_head;

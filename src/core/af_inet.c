@@ -28,7 +28,7 @@ int inet_bind(struct socket *sock, struct __sockaddr *uaddr){
   inet->dport = 0;
   inet->id = 0;
 
-  sk->sk_state = CLOSED;
+  sk->sk_state = SK_CLOSED;
   //sk_dst_reset(sk);
   return 1;
 }

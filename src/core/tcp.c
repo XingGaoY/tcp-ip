@@ -6,13 +6,30 @@
 #define TCP_BHASH_SIZE 10
 #define TCP_EHASH_SIZE 10
 
-struct bind_bucket{
-  uint16_t port;
-  struct hlist_node bind_node;
+#define LOOKUP_EHASH 0
+#define LOOKUP_BHASH 1
+#define LOOKUP_ALL   2
+
+typedef struct sk_ptr{
   struct sock *sk;
+}sk_ptr_t;
+#define get_sk(x) ((sk_ptr_t *)(x))->sk
+
+struct bind_bucket{
+  struct sock *sk;
+  uint16_t port;
+  int reuse;
+  struct hlist_node bind_node;
 };
 #define bbucket_for_each(__bbucket, node, list) \
 	hlist_for_each_entry(__bbucket, node, list, bind_node)
+
+struct tcpe_sock{
+  struct sock *sk;
+  struct hlist_node tcpe_node;
+};
+#define tcpesk_for_each(__tcpesk, node, list) \
+	hlist_for_each_entry(__tcpesk, node, list, tcpe_node)
 
 static struct hlist_head tcp_bhash[TCP_BHASH_SIZE];
 static struct hlist_head tcp_ehash[TCP_EHASH_SIZE];
@@ -23,6 +40,7 @@ struct sock *tcp_sk_alloc(){
 }
 
 void tcp_output(struct sock *sk, void *buf, int len, int type);
+static void *tcp_lookup_ebhash(struct sk_buff *skb, int range);
 /**
  * The tcp establish finite machine
  */
@@ -52,9 +70,20 @@ static void tcp_listen_input(struct sk_buff *skb){
   /* 3rd handshake for a passive connect */
   else if((tcpcb->flags & (TCP_SYN | TCP_ACK)) && (tcpsk->tcp_state == TCP_SYN_SENT)){
     // Check if it is the right 3rd handshake back
-    if(tcpcb->ack == tcpsk->sseq + 1)
+    if(tcpcb->ack == tcpsk->sseq + 1){
       // TODO do something to actually esablish the connection
       printf("TCP connection set up...\n");
+      skb->sk->sk_state = SK_CONNECTED;
+      
+      struct tcpe_sock *esk;
+
+      esk = (struct tcpe_sock *)tcp_lookup_ebhash(skb, LOOKUP_EHASH);
+      if(!esk){
+        esk = (struct tcpe_sock *)malloc(sizeof(struct tcpe_sock));
+        esk->sk = skb->sk;
+        hlist_add_head(&esk->tcpe_node, &tcp_ehash[skb->dport & (TCP_EHASH_SIZE - 1)]);
+      }
+    }
   }
 }
 
@@ -76,18 +105,24 @@ static int tcp_v4_get_port(struct sock *sk, unsigned short snum){
   else{
     head = &tcp_bhash[snum &(TCP_BHASH_SIZE - 1)];
     bbucket_for_each(bbucket, node, head)
-      if(bbucket->port == snum)
+      if(bbucket->port == snum && !bbucket->reuse)
         goto fail;
+      else if(bbucket->port == snum && bbucket->reuse)
+        goto reuse;
   }
 
   new_bbucket = (struct bind_bucket *)malloc(sizeof(struct bind_bucket));
 
   new_bbucket->port = snum;
   new_bbucket->sk = sk;
+  new_bbucket->reuse = 1;
 
   head = &tcp_bhash[snum &(TCP_BHASH_SIZE -1)];
   hlist_add_head(&new_bbucket->bind_node, head);
 
+reuse:
+  bbucket->sk = sk;
+  bbucket->reuse = 1;
   /* I guess I could reset these two value 0 in both bind and listen*/
   struct tcp_opt *tcpsk = tcp_sk(sk);
   tcpsk->sseq = 0;  //TODO generate one rather than 0
@@ -107,44 +142,47 @@ int tcp_start_listen(struct sock *sk){
   // I simplified it for now to eliminate lhash
   struct tcp_opt *tcpsk = tcp_sk(sk);
 
-  sk->sk_state = LISTEN;
+  sk->sk_state = SK_LISTEN;
   tcpsk->tcp_state = TCP_LISTEN;
   return 0;
 }
 
-static struct sock *tcp_lookup_ebhash(struct sk_buff *skb){
+static void *tcp_lookup_ebhash(struct sk_buff *skb, int range){
   struct hlist_node *node;
-  struct sock *sk, *res_sk = NULL;
+  struct sock *sk;
   struct bind_bucket *bbucket;
+  struct tcpe_sock *tcpesk;
 
-  // lookup bhash
-  bbucket_for_each(bbucket, node, &tcp_bhash[skb->dport & (TCP_BHASH_SIZE - 1)]){
-    sk = bbucket->sk;
-    struct inet_opt *inet = inet_sk(sk);
-    // only permit exact match now
-    if(inet->sport == skb->dport && inet->saddr == skb->daddr){
-      res_sk = sk;
-      return res_sk;
+  if(range == LOOKUP_EHASH || range == LOOKUP_ALL){
+    // lookup ehash
+    tcpesk_for_each(tcpesk, node, &tcp_ehash[skb->dport & (TCP_EHASH_SIZE - 1)]){
+      sk = tcpesk->sk;
+      struct inet_opt *inet = inet_sk(sk);
+      // only permit exact match now
+      if(inet->sport == skb->dport && inet->saddr == skb->daddr){
+        return tcpesk;
+      }
     }
   }
-
-  // lookup ehash
-  sk_for_each(sk, node, &tcp_ehash[skb->dport & (TCP_EHASH_SIZE - 1)]){
-    struct inet_opt *inet = inet_sk(sk);
-    // only permit exact match now
-    if(inet->sport == skb->dport && inet->saddr == skb->daddr){
-      res_sk = sk;
-      return res_sk;
+  if(range == LOOKUP_BHASH || range == LOOKUP_ALL){
+    // lookup bhash
+    bbucket_for_each(bbucket, node, &tcp_bhash[skb->dport & (TCP_BHASH_SIZE - 1)]){
+      sk = bbucket->sk;
+      struct inet_opt *inet = inet_sk(sk);
+      // only permit exact match now
+      if(inet->sport == skb->dport && inet->saddr == skb->daddr){
+        return bbucket;
+      }
     }
   }
-  return res_sk;
+  return NULL;
 }
 
 static int tcp_v4_do_rcv(struct sk_buff *skb){
   struct sock *sk = skb->sk;
 
   switch(sk->sk_state){
-    case(LISTEN):
+    case(SK_LISTEN):
       tcp_listen_input(skb);
       break;
   }
@@ -185,11 +223,8 @@ void tcp_rcv(struct sk_buff *skb){
    * In lwip, demultiplex is processed by first search active connection list,
    * then TIME-WAIT list, and listen list finally
    */
-  
   /* search the listen hash to find a match  */
-  res_sk = tcp_lookup_ebhash(skb);
-  
-  if(res_sk != NULL){
+  if((res_sk = get_sk(tcp_lookup_ebhash(skb, LOOKUP_ALL))) != NULL){
     skb->sk = res_sk;
     tcp_v4_do_rcv(skb);
   }
@@ -234,6 +269,8 @@ void tcp_output(struct sock *sk, void *buf, int len, int type){
 void tcp_init(){
   for(int i = 0; i < TCP_BHASH_SIZE; i++)
     INIT_HLIST_HEAD(&tcp_bhash[i]);
+  for(int i = 0; i < TCP_EHASH_SIZE; i++)
+    INIT_HLIST_HEAD(&tcp_ehash[i]);
 }
 
 struct proto tcp_prot = {
