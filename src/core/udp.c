@@ -25,27 +25,27 @@ static int udp_queue_xmit_skb(struct sock * sk, struct sk_buff *skb){
   return 0;
 }
 
-struct sock *udp_sk_lookup(uint32_t saddr, uint16_t sport, uint32_t daddr, uint16_t dport){
+struct sock *udp_sk_lookup(struct sk_buff *skb){
   struct sock *sk, *result;
   struct hlist_node *node;
   int badness = -1;
 
-  sk_for_each(sk, node, &udp_hash[dport & (UDP_HTABLE_SIZE - 1)]){
+  sk_for_each(sk, node, &udp_hash[skb->dport & (UDP_HTABLE_SIZE - 1)]){
     struct inet_opt *inet = inet_sk(sk);
     int score = 1;
-    if(inet->sport == dport){
+    if(inet->sport == skb->dport){
       if (inet->saddr) {
-        if (inet->saddr != daddr)
+        if (inet->saddr != skb->daddr)
           continue;
         score+=2;
       }
       if (inet->daddr) {
-        if (inet->daddr != saddr)
+        if (inet->daddr != skb->saddr)
           continue;
         score+=2;
       }
       if (inet->dport) {
-        if (inet->dport != sport)
+        if (inet->dport != skb->sport)
           continue;
         score+=2;
       }
@@ -88,25 +88,19 @@ fail:
 
 void udp_rcv(struct sk_buff *skb){
   struct udp_hdr *udphdr;
-  struct ip_hdr *iphdr;
-  uint16_t sport, dport;
-  uint32_t saddr, daddr;
   struct sock *sk;
 
   udphdr = (struct udp_hdr *)skb->data;
-  iphdr = (struct ip_hdr *) skb->network_header;
-  saddr = iphdr->src;
-  daddr = iphdr->dest;
-  sport = lwip_htons(udphdr->src);
-  dport = lwip_htons(udphdr->dest);
+  skb->sport = lwip_htons(udphdr->src);
+  skb->dport = lwip_htons(udphdr->dest);
 
   fprintf(logout, "--------------------\n");
   printf("Received an UDP packet...\n");
-  fprintf(logout, "src port = %x  dest port = %x  UDP len = %x  UDP chksum = %04x\n", sport, dport, udphdr->len, udphdr->chksum);
+  fprintf(logout, "src port = %x  dest port = %x  UDP len = %x  UDP chksum = %04x\n", skb->sport, skb->dport, udphdr->len, udphdr->chksum);
 
   skb->transport_header = skb->data;
   /* check chksum, and silently drop the packet if err */
-  if(pseudo_chksum(skb, saddr, daddr, IPH_PROTO(iphdr))!=0)
+  if(pseudo_chksum(skb, skb->saddr, skb->daddr, skb->ip_proto)!=0)
     return;
   skb_pull(skb, SIZEOF_UDP_HDR);
   /* No UDP chksum check for now, and of course do not send UDP with chksum as well */
@@ -115,7 +109,7 @@ void udp_rcv(struct sk_buff *skb){
   /* and send datagram to the perfect match one or ... */
 
   /* UDP multicast is needed to be added */
-  sk = udp_sk_lookup(saddr, sport, daddr, dport);
+  sk = udp_sk_lookup(skb);
 
   if(sk){
     udp_queue_rcv_skb(sk, skb);

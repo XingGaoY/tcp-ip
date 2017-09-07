@@ -49,7 +49,10 @@ void ip4_input(struct sk_buff *skb){
     return;
 
   skb->len = (unsigned int)PP_HTONS(IPH_LEN(iphdr));
+  skb->saddr = iphdr->src;
+  skb->daddr = iphdr->dest;
   skb->network_header = skb->data;
+  skb->ip_proto = IPH_PROTO(iphdr);
   skb_pull(skb, iphdr_hlen);
 
   /* Send to upper layers */

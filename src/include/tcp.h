@@ -7,7 +7,6 @@
 #include "ip4.h"
 
 #define SIZEOF_TCP_HDR 20
-#define TCP_LISTEN_HTABLE_SIZE 10
 #define MAX_TCP_HDR MAX_IP_HDR + SIZEOF_TCP_HDR
 
 /**

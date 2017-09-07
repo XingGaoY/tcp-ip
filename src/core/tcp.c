@@ -14,7 +14,6 @@ struct bind_bucket{
 #define bbucket_for_each(__bbucket, node, list) \
 	hlist_for_each_entry(__bbucket, node, list, bind_node)
 
-static struct hlist_head tcp_lhash[TCP_LISTEN_HTABLE_SIZE];
 static struct hlist_head tcp_bhash[TCP_BHASH_SIZE];
 static struct hlist_head tcp_ehash[TCP_EHASH_SIZE];
 
@@ -38,7 +37,9 @@ static void tcp_listen_input(struct sk_buff *skb){
   tcpsk = tcp_sk(sk);
   /* Check if it is the first sync packet */
   /* Do not permit simultaneous open now */
-  if((tcpcb->flags & TCP_SYN) && (tcpsk->tcp_state == LISTEN)){
+
+  /* 1st handshake for a passive connect */
+  if((tcpcb->flags & TCP_SYN) && (tcpsk->tcp_state == TCP_LISTEN)){
     printf("The listening port received an TCP connection request...\n");
     tcpsk->dseq = tcpcb->seq;
     tcpsk->tcp_state = TCP_SYN_SENT;
@@ -48,12 +49,19 @@ static void tcp_listen_input(struct sk_buff *skb){
     /* Send back an syn and ack dseq+1 */
     tcp_output(sk, NULL, 0, TCP_SYN_SENT);
   }
+  /* 3rd handshake for a passive connect */
+  else if((tcpcb->flags & (TCP_SYN | TCP_ACK)) && (tcpsk->tcp_state == TCP_SYN_SENT)){
+    // Check if it is the right 3rd handshake back
+    if(tcpcb->ack == tcpsk->sseq + 1)
+      // TODO do something to actually esablish the connection
+      printf("TCP connection set up...\n");
+  }
 }
 
 //This function is exactly same with udp_v4_get_port
 //But "maybe" I will add some more utils so just don't coalesce
 static int tcp_v4_get_port(struct sock *sk, unsigned short snum){
-  struct bind_bucket new_bbucket, *bbucket;
+  struct bind_bucket *new_bbucket, *bbucket;
 /**
  * Similar with udp, in linux, the port is organized in a hash list
  * we do not permit port reuse and the the port num will be removed
@@ -72,15 +80,17 @@ static int tcp_v4_get_port(struct sock *sk, unsigned short snum){
         goto fail;
   }
 
-  new_bbucket.port = snum;
-  new_bbucket.sk = sk;
+  new_bbucket = (struct bind_bucket *)malloc(sizeof(struct bind_bucket));
+
+  new_bbucket->port = snum;
+  new_bbucket->sk = sk;
 
   head = &tcp_bhash[snum &(TCP_BHASH_SIZE -1)];
-  hlist_add_head(&new_bbucket.bind_node, head);
+  hlist_add_head(&new_bbucket->bind_node, head);
 
   /* I guess I could reset these two value 0 in both bind and listen*/
   struct tcp_opt *tcpsk = tcp_sk(sk);
-  tcpsk->sseq = 0;
+  tcpsk->sseq = 0;  //TODO generate one rather than 0
   tcpsk->dseq = 0;
 
   return 0;
@@ -105,22 +115,24 @@ int tcp_start_listen(struct sock *sk){
 static struct sock *tcp_lookup_ebhash(struct sk_buff *skb){
   struct hlist_node *node;
   struct sock *sk, *res_sk = NULL;
+  struct bind_bucket *bbucket;
 
-  // lookup lhash
-  sk_for_each(sk, node, &tcp_lhash[skb->sport & (TCP_LISTEN_HTABLE_SIZE - 1)]){
+  // lookup bhash
+  bbucket_for_each(bbucket, node, &tcp_bhash[skb->dport & (TCP_BHASH_SIZE - 1)]){
+    sk = bbucket->sk;
     struct inet_opt *inet = inet_sk(sk);
     // only permit exact match now
-    if(inet->sport == skb->sport && inet->saddr == skb->saddr){
+    if(inet->sport == skb->dport && inet->saddr == skb->daddr){
       res_sk = sk;
       return res_sk;
     }
   }
 
-  // lookup bhash
-  sk_for_each(sk, node, &tcp_ehash[skb->sport & (TCP_LISTEN_HTABLE_SIZE - 1)]){
+  // lookup ehash
+  sk_for_each(sk, node, &tcp_ehash[skb->dport & (TCP_EHASH_SIZE - 1)]){
     struct inet_opt *inet = inet_sk(sk);
     // only permit exact match now
-    if(inet->sport == skb->sport && inet->saddr == skb->saddr){
+    if(inet->sport == skb->dport && inet->saddr == skb->daddr){
       res_sk = sk;
       return res_sk;
     }
@@ -142,19 +154,15 @@ static int tcp_v4_do_rcv(struct sk_buff *skb){
 // Whatever, process header first
 void tcp_rcv(struct sk_buff *skb){
   struct tcp_hdr *tcphdr;
-  struct ip_hdr *iphdr;
-  uint32_t daddr;
-  uint16_t dport;
   struct tcp_cb *tcpcb;
   struct sock *res_sk = NULL;
-
-  iphdr = (struct ip_hdr *)skb->network_header;
 
   tcphdr = (struct tcp_hdr *)skb->data;
   skb->transport_header = skb->data;
 
-  dport = lwip_htons(tcphdr->dest);
-  daddr = iphdr->dest;
+  skb->sport = lwip_htons(tcphdr->src);
+  skb->dport = lwip_htons(tcphdr->dest);
+
 
   printf("--------------------\n");
   printf("Received an TCP packet...\n");
@@ -164,7 +172,7 @@ void tcp_rcv(struct sk_buff *skb){
                                                           TCPH_HDRLEN(tcphdr), TCPH_FLAGS(tcphdr), 
                                                           tcphdr->wnd, tcphdr->chksum,
                                                           tcphdr->urgp);
-  printf("checksum: %x\n", pseudo_chksum(skb, iphdr->src, daddr, IPH_PROTO(iphdr)));
+  printf("checksum: %x\n", pseudo_chksum(skb, skb->saddr, skb->daddr, skb->ip_proto));
   /*TODO Also, some check of tcp header is needed to be put here */
   skb_pull(skb, SIZEOF_TCP_HDR);
   /* Save the seq and ack of the skbuff into cb in the skbuff*/
@@ -172,9 +180,6 @@ void tcp_rcv(struct sk_buff *skb){
   tcpcb->seq = PP_HTONL(tcphdr->seq);
   tcpcb->ack = PP_HTONL(tcphdr->ack);
   tcpcb->flags = TCPH_FLAGS(tcphdr);
-
-  skb->saddr = daddr;
-  skb->sport = dport;
 
   /**
    * In lwip, demultiplex is processed by first search active connection list,
@@ -215,7 +220,7 @@ void tcp_output(struct sock *sk, void *buf, int len, int type){
 
   switch(type){
     case TCP_SYN_SENT:
-      TCPH_HDRLEN_FLAGS_SET(tcphdr, SIZEOF_TCP_HDR, TCP_SYN|TCP_ACK);
+      TCPH_HDRLEN_FLAGS_SET(tcphdr, SIZEOF_TCP_HDR/4, TCP_SYN|TCP_ACK);
       break;
     default:
       break;
@@ -227,9 +232,6 @@ void tcp_output(struct sock *sk, void *buf, int len, int type){
 }
 
 void tcp_init(){
-  for(int i = 0; i < TCP_LISTEN_HTABLE_SIZE; i++)
-    INIT_HLIST_HEAD(&tcp_lhash[i]);
-
   for(int i = 0; i < TCP_BHASH_SIZE; i++)
     INIT_HLIST_HEAD(&tcp_bhash[i]);
 }

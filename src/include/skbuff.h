@@ -13,8 +13,12 @@ struct sk_buff{
 
   struct sock *sk;
 
+  int ip_proto;
+
   uint32_t saddr;
   uint16_t sport;
+  uint32_t daddr;
+  uint16_t dport;
 
   void *transport_header;
   void *network_header;
