@@ -11,4 +11,6 @@ void udp_server();
 
 void udp_client();
 
+void tcp_server();
+
 #endif // _APP_H_

@@ -55,6 +55,13 @@ int raw_bind(int sock_fd, struct __sockaddr *addr){
   return 1;
 }
 
+int raw_listen(int sock_fd){
+  struct socket *sock;
+  if((sock = sock_list[sock_fd]) != NULL){
+    sock->ops->listen(sock);
+  }
+  return 0;
+}
 
 // No _from now, just a copy of src ip & port
 int raw_recv(int sock_fd, void *buf, int len){

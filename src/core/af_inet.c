@@ -1,6 +1,8 @@
 #include "af_inet.h"
 #include "netif.h"
 
+//TODO socket needs to be freed when err
+
 int inet_bind(struct socket *sock, struct __sockaddr *uaddr){
   struct sock *sk = sock->sk;
   struct inet_opt *inet = inet_sk(sk);
@@ -25,8 +27,21 @@ int inet_bind(struct socket *sock, struct __sockaddr *uaddr){
   inet->daddr = 0;
   inet->dport = 0;
   inet->id = 0;
+
+  sk->sk_state = CLOSED;
   //sk_dst_reset(sk);
   return 1;
+}
+
+int inet_listen(struct socket *sock){
+  int retval;
+  if(sock->state != SS_UNCONNECTED || sock->type != _SOCK_STREAM)
+    return -1;
+
+  struct sock *sk = sock->sk;
+  retval = sk->sk_prot->listen(sk);
+
+  return retval;
 }
 
 int inet_recvmsg(struct socket *sock, void *buf, int len){
@@ -54,7 +69,7 @@ struct proto_ops inet_dgram_ops = {
   .bind = inet_bind,
   .connect = NULL,
   .accept = NULL,
-  .listen = NULL,
+  .listen = inet_listen,
   .shutdown = NULL,
   .sendmsg = inet_sendmsg,
   .recvmsg = inet_recvmsg
@@ -62,6 +77,7 @@ struct proto_ops inet_dgram_ops = {
 
 struct proto_ops inet_stream_ops = {
   .bind = inet_bind,
+  .listen = inet_listen
 };
 
 struct inet_protosw inetsw_array[] =

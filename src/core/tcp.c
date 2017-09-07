@@ -38,10 +38,10 @@ static void tcp_listen_input(struct sk_buff *skb){
   tcpsk = tcp_sk(sk);
   /* Check if it is the first sync packet */
   /* Do not permit simultaneous open now */
-  if((tcpcb->flags & TCP_SYN) && (tcpsk->state == LISTEN)){
+  if((tcpcb->flags & TCP_SYN) && (sk->sk_state == LISTEN)){
     printf("The listening port received an TCP connection request...\n");
     tcpsk->dseq = tcpcb->seq;
-    tcpsk->state = SYN_SENT;
+    sk->sk_state = SYN_SENT;
 
     inet->dport = skb->sport;
     inet->daddr = skb->saddr;
@@ -78,16 +78,25 @@ static int tcp_v4_get_port(struct sock *sk, unsigned short snum){
   head = &tcp_bhash[snum &(TCP_BHASH_SIZE -1)];
   hlist_add_head(&new_bbucket.bind_node, head);
 
-  /* finish binding, these lines should not be here, 
-   * as listen will need to get port as well */
+  /* I guess I could reset these two value 0 in both bind and listen*/
   struct tcp_opt *tcpsk = tcp_sk(sk);
-  tcpsk->state = CLOSED;
   tcpsk->sseq = 0;
   tcpsk->dseq = 0;
 
   return 0;
 fail:
   return 1;
+}
+
+int tcp_start_listen(struct sock *sk){
+  // tcp get port are restricted to bind()
+  // unlike linux, just set the state and hash here
+
+  // put sk into lhash and set state to listen
+  // lhash is the list to save the sock in two sync state
+  // I simplified it for now to eliminate lhash
+  sk->sk_state = LISTEN;
+  return 0;
 }
 
 static struct sock *tcp_lookup_ebhash(struct sk_buff *skb){
@@ -117,9 +126,9 @@ static struct sock *tcp_lookup_ebhash(struct sk_buff *skb){
 }
 
 static int tcp_v4_do_rcv(struct sk_buff *skb){
-  struct tcp_opt *tcpsk = tcp_sk(skb->sk);
+  struct sock *sk = skb->sk;
 
-  switch(tcpsk->state){
+  switch(sk->sk_state){
     case(LISTEN):
       tcp_listen_input(skb);
       break;
@@ -225,5 +234,6 @@ void tcp_init(){
 struct proto tcp_prot = {
   .name     =    "TCP",
   .sk_alloc =    tcp_sk_alloc,
+  .listen   =    tcp_start_listen,
   .get_port =    tcp_v4_get_port
 };

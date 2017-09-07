@@ -22,6 +22,8 @@ struct __sockaddr {
 // All sockets are AF_INET, so rm domain field
 int raw_socket(int type);
 int raw_bind(int sock_fd, struct __sockaddr *addr);
+// No backlog for now
+int raw_listen(int sock_fd);
 int raw_recv(int sock_fd, void *buf, int len);
 int raw_send(int sock_fd, void *buf, int len, 
              const struct __sockaddr *dest_addr);

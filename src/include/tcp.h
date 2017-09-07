@@ -41,7 +41,6 @@ struct tcp_cb{
 
 /* TCP protocol control block */
 struct tcp_opt {
-  int state;
   uint32_t sseq;
   uint32_t dseq;
 };
@@ -69,15 +68,6 @@ struct tcp_sock {
 #define TCPH_FLAGS(phdr)  ((uint16_t)(lwip_htons((phdr)->hdrlen_rsvd_flags) & TCP_FLAGS))
 
 #define TCPH_HDRLEN_FLAGS_SET(phdr, len, flags) (phdr)->hdrlen_rsvd_flags = (uint16_t)(lwip_htons((uint16_t)((len) << 12) | (flags)))
-
-/* tcp state */
-enum tcp_state{
-  LISTEN = 0,
-  SYN_SENT = 1,
-  SYN_RECV = 2,
-
-  CLOSED = 255,
-};
 
 void tcp_init();
 

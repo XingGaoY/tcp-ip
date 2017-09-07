@@ -29,7 +29,7 @@ struct proto_ops{
 				      int sockaddr_len, int flags);
 	int		(*accept)    (struct socket *sock,
 				      struct socket *newsock, int flags);
-	int		(*listen)    (struct socket *sock, int len);
+	int		(*listen)    (struct socket *sock);
 	int		(*shutdown)  (struct socket *sock, int flags);
 	int		(*sendmsg)   (struct socket *sock, void *buf, int len, 
                                       const struct __sockaddr *daddr);
