@@ -5,8 +5,6 @@ The notes and my implementation of tcp/ip stack is maintained here.
 
 # Implemented Step by Step
 I refered to saminiir's step, and mark them with tags 
-## v0.1
-[Set up TAP device and parse eth-hdr](doc/1-TAP-ethhdr.md)
 
 ## v0.2
 [Implement ARP, handles ARP req and send reply](doc/2-arp.md) 
